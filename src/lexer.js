@@ -170,17 +170,17 @@ Lexer.prototype.token = function token(src, top, bq) {
             // Get each top-level item.
             cap = cap[0].match(this.rules.item);
 
-            next = false;
-            l = cap.length;
-            i = 0;
+            next = false
+            l = cap.length
+            i = 0
 
             for (; i < l; i++) {
-                item = cap[i];
+                item = cap[i]
 
                 // Remove the list item's bullet
                 // so it is seen as the next token.
-                space = item.length;
-                item = item.replace(/^ *([*+-]|\d+\.) +/, '');
+                space = item.length
+                item = item.replace(/^ *([*+-]|\d+\.) +/, '')
 
                 // Outdent whatever the
                 // list item contains. Hacky.
@@ -192,98 +192,99 @@ Lexer.prototype.token = function token(src, top, bq) {
                 // Determine whether the next list item belongs here.
                 // Backpedal if it does not belong in this list.
                 if (this.options.smartLists && i !== l - 1) {
-                    b = block.bullet.exec(cap[i + 1])[0];
+                    b = block.bullet.exec(cap[i + 1])[0]
                     if (bull !== b && !(bull.length > 1 && b.length > 1)) {
-                        src = cap.slice(i + 1).join('\n') + src;
-                        i = l - 1;
+                        src = cap.slice(i + 1).join('\n') + src
+                        i = l - 1
                     }
                 }
 
                 // Determine whether item is loose or not.
                 // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
                 // for discount behavior.
-                loose = next || /\n\n(?!\s*$)/.test(item);
+                loose = next || /\n\n(?!\s*$)/.test(item)
                 if (i !== l - 1) {
-                    next = item.charAt(item.length - 1) === '\n';
-                    if (!loose) loose = next;
+                    next = item.charAt(item.length - 1) === '\n'
+                    if (!loose) loose = next
                 }
 
                 this.tokens.push({
                     type: loose ? 'loose_item_start' : 'list_item_start',
-                });
+                })
 
                 // Recurse.
-                this.token(item, false, bq);
+                this.token(item, false, bq)
 
                 this.tokens.push({
                     type: 'list_item_end',
-                });
+                })
             }
 
             this.tokens.push({
                 type: 'list_end',
-            });
+            })
 
-            continue;
+            continue
         }
 
         // html
         if (cap = this.rules.html.exec(src)) {
-            src = src.substring(cap[0].length);
+            src = src.substring(cap[0].length)
             this.tokens.push({
                 type: this.options.sanitize ? 'paragraph' : 'html',
                 pre: !this.options.sanitizer && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
                 text: cap[0],
-            });
-            continue;
+            })
+            continue
         }
 
         // def
         if ((!bq && top) && (cap = this.rules.def.exec(src))) {
-            src = src.substring(cap[0].length);
+            src = src.substring(cap[0].length)
             this.tokens.links[cap[1].toLowerCase()] = {
                 href: cap[2],
                 title: cap[3],
-            };
-            continue;
+            }
+            continue
         }
 
         // table (gfm)
         if (top && (cap = this.rules.table.exec(src))) {
-            src = src.substring(cap[0].length);
+            src = src.substring(cap[0].length)
 
             item = {
                 type: 'table',
                 header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
                 align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
                 cells: cap[3].replace(/(?: *\| *)?\n$/, '').split('\n'),
-            };
+            }
 
             for (i = 0; i < item.align.length; i++) {
                 if (/^ *-+: *$/.test(item.align[i])) {
-                    item.align[i] = 'right';
+                    item.align[i] = 'right'
                 } else if (/^ *:-+: *$/.test(item.align[i])) {
-                    item.align[i] = 'center';
+                    item.align[i] = 'center'
                 } else if (/^ *:-+ *$/.test(item.align[i])) {
-                    item.align[i] = 'left';
+                    item.align[i] = 'left'
                 } else {
-                    item.align[i] = null;
+                    item.align[i] = null
                 }
             }
 
             for (i = 0; i < item.cells.length; i++) {
                 item.cells[i] = item.cells[i]
                     .replace(/^ *\| *| *\| *$/g, '')
-                    .split(/ *\| */);
+                    .split(/ *\| */)
             }
 
-            this.tokens.push(item);
+            this.tokens.push(item)
 
-            continue;
+            continue
         }
         // extended other
         if (this.options.extended && this.options.extended.length > 0) {
             const extendedLen = this.options.extended.length
+            let isToken = false
             for (let h = 0; h < extendedLen; h++) {
                 const extended = this.options.extended[h]
                 if (typeof extended === 'function') {
@@ -291,9 +292,12 @@ Lexer.prototype.token = function token(src, top, bq) {
                     if (tokenAndLen) {
                         this.tokens.push(tokenAndLen.token)
                         src = src.substring(tokenAndLen.sublen)
+                        isToken = true
+                        break
                     }
                 }
             }
+            if (isToken) continue
         }
         // top-level paragraph
         if (top && (cap = this.rules.paragraph.exec(src))) {
@@ -301,8 +305,8 @@ Lexer.prototype.token = function token(src, top, bq) {
             this.tokens.push({
                 type: 'paragraph',
                 text: cap[1].charAt(cap[1].length - 1) === '\n' ? cap[1].slice(0, -1) : cap[1],
-            });
-            continue;
+            })
+            continue
         }
 
         // text

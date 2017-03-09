@@ -80,9 +80,13 @@ marked.setExtended = function setExtended(opt) {
     const extType = opt.type
     const renderer = opt.renderer
     const regexp = opt.regexp
-    this.Renderer.prototype[extType] = renderer
-    this.defaults.extended = marked.defaults.extended || []
-    this.defaults.extended.push(regexp)
+    if (extType && renderer){
+        this.Renderer.prototype[extType] = renderer
+    }
+    if (regexp) {
+        this.defaults.extended = marked.defaults.extended || []
+        this.defaults.extended.push(regexp)
+    }
 }
 marked.use = function use(plugin) {
     const args = [this].concat(Array.prototype.slice.call(arguments, 1))
