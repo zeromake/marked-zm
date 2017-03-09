@@ -15,6 +15,7 @@ const inline = {
     code: /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,
     br: /^ {2,}\n(?!\s*$)/,
     del: noop,
+    toc: /\s*\[TOC\]/,
     text: /^[\s\S]+?(?=[\\<![_*`]| {2,}\n|$)/,
 };
 
@@ -118,6 +119,12 @@ InlineLexer.prototype.output = function staticOutput(src) {
     let cap
 
     while (src) {
+        // toc
+        if (cap = this.rules.toc.exec(src)) {
+            src = src.substring(cap[0].length)
+            out += this.tocHTML
+            continue
+        }
         // escape
         if (cap = this.rules.escape.exec(src)) {
             src = src.substring(cap[0].length)
@@ -226,12 +233,11 @@ InlineLexer.prototype.output = function staticOutput(src) {
             out += this.renderer.del(this.output(cap[1]))
             continue
         }
-
         // text
         if (cap = this.rules.text.exec(src)) {
             src = src.substring(cap[0].length)
             out += this.renderer.text(escape(this.smartypants(cap[0])))
-            continue;
+            continue
         }
 
         if (src) {

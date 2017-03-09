@@ -26,12 +26,19 @@ Parser.parse = function staticParse(src, options, renderer) {
 
 Parser.prototype.parse = function parse(src) {
     this.inline = new InlineLexer(src.links, this.options, this.renderer)
+    const tocItems = []
+    src.forEach((token) => {
+        if (token.type === 'heading') {
+            const id = token.text.toLowerCase()
+            tocItems.push(this.renderer.tocItem(id, token.depth, token.text))
+        }
+    })
+    this.inline.tocHTML = this.renderer.toc(tocItems.join(''))
     this.tokens = src.reverse()
     let parseOut = ''
     while (this.next()) {
         parseOut += this.tok()
     }
-
     return parseOut
 };
 

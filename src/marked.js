@@ -80,7 +80,7 @@ marked.setExtended = function setExtended(opt) {
     const extType = opt.type
     const renderer = opt.renderer
     const regexp = opt.regexp
-    if (extType && renderer){
+    if (extType && renderer) {
         this.Renderer.prototype[extType] = renderer
     }
     if (regexp) {
