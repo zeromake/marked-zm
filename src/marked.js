@@ -1,9 +1,9 @@
-import { merge, escape } from './utils'
-import Lexer from './lexer'
-import Parser from './parser'
-import Renderer from './renderer'
-import InlineLexer from './inlinelexer'
-import defaults from './defaults'
+const { merge, escape } = require('./utils')
+const Lexer = require('./lexer')
+const Parser = require('./parser')
+const Renderer = require('./renderer')
+const InlineLexer = require('./inlinelexer')
+const defaults = require('./defaults')
 
 function marked(src, opt, callback) {
     if (callback || typeof opt === 'function') {

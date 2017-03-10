@@ -1,4 +1,4 @@
-import { replace, noop, merge } from './utils'
+const { replace, noop, merge } = require('./utils')
 
 
 const block = {
@@ -16,6 +16,7 @@ const block = {
     table: noop,
     paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
     text: /^[^\n]+/,
+    toc: /\s*\[TOC\]/
 }
 block.bullet = /(?:[*+-]|\d+\.)/
 block.item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/
@@ -63,12 +64,9 @@ block.gfm = merge({}, block.normal, {
 });
 
 block.gfm.paragraph = replace(block.paragraph)
-    (
-        '(?!',
-        '(?!'
-        + block.gfm.fences.source.replace('\\1', '\\2') + '|'
-        + block.list.source.replace('\\1', '\\3') + '|',
-    )()
+    ('(?!', '(?!'
+        + block.gfm.fences.source.replace('\\1', '\\2')
+        + '|' + block.list.source.replace('\\1', '\\3') + '|')()
 
 /**
  * GFM + Tables Block Grammar
@@ -79,4 +77,4 @@ block.tables = merge({}, block.gfm, {
     table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/,
 });
 
-export default block
+module.exports = block

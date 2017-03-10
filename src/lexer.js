@@ -1,9 +1,10 @@
-import defaults from './defaults'
-import block from './block'
+const defaults = require('./defaults')
+const block = require('./block')
 
 function Lexer(options) {
     this.tokens = []
     this.tokens.links = {}
+    this.tocs = []
     this.options = options || defaults
     this.rules = block.normal
     if (this.options.gfm) {
@@ -41,6 +42,14 @@ Lexer.prototype.token = function token(src, top, bq) {
     let i
     let l
     while (src) {
+        // toc
+        if (cap = this.rules.toc.exec(src)) {
+            src = src.substring(cap[0].length)
+            this.tokens.push({
+                type: 'toc'
+            })
+        }
+
         // newline
         if (cap = this.rules.newline.exec(src)) {
             src = src.substring(cap[0].length);
@@ -75,13 +84,15 @@ Lexer.prototype.token = function token(src, top, bq) {
 
         // heading
         if (cap = this.rules.heading.exec(src)) {
-            src = src.substring(cap[0].length);
-            this.tokens.push({
+            src = src.substring(cap[0].length)
+            const headToken = {
                 type: 'heading',
                 depth: cap[1].length,
                 text: cap[2],
-            });
-            continue;
+            }
+            this.tocs.push(headToken)
+            this.tokens.push(headToken)
+            continue
         }
 
         // table no leading pipe (gfm)
@@ -93,82 +104,82 @@ Lexer.prototype.token = function token(src, top, bq) {
                 header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
                 align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
                 cells: cap[3].replace(/\n$/, '').split('\n'),
-            };
+            }
 
             for (i = 0; i < item.align.length; i++) {
                 if (/^ *-+: *$/.test(item.align[i])) {
-                    item.align[i] = 'right';
+                    item.align[i] = 'right'
                 } else if (/^ *:-+: *$/.test(item.align[i])) {
-                    item.align[i] = 'center';
+                    item.align[i] = 'center'
                 } else if (/^ *:-+ *$/.test(item.align[i])) {
-                    item.align[i] = 'left';
+                    item.align[i] = 'left'
                 } else {
-                    item.align[i] = null;
+                    item.align[i] = null
                 }
             }
 
             for (i = 0; i < item.cells.length; i++) {
-                item.cells[i] = item.cells[i].split(/ *\| */);
+                item.cells[i] = item.cells[i].split(/ *\| */)
             }
 
-            this.tokens.push(item);
+            this.tokens.push(item)
 
-            continue;
+            continue
         }
 
         // lheading
         if (cap = this.rules.lheading.exec(src)) {
-            src = src.substring(cap[0].length);
+            src = src.substring(cap[0].length)
             this.tokens.push({
                 type: 'heading',
                 depth: cap[2] === '=' ? 1 : 2,
                 text: cap[1],
-            });
-            continue;
+            })
+            continue
         }
 
         // hr
         if (cap = this.rules.hr.exec(src)) {
-            src = src.substring(cap[0].length);
+            src = src.substring(cap[0].length)
             this.tokens.push({
                 type: 'hr',
-            });
-            continue;
+            })
+            continue
         }
 
         // blockquote
         if (cap = this.rules.blockquote.exec(src)) {
-            src = src.substring(cap[0].length);
+            src = src.substring(cap[0].length)
 
             this.tokens.push({
                 type: 'blockquote_start',
-            });
+            })
 
-            cap = cap[0].replace(/^ *> ?/gm, '');
+            cap = cap[0].replace(/^ *> ?/gm, '')
 
             // Pass `top` to keep the current
             // "toplevel" state. This is exactly
             // how markdown.pl works.
-            this.token(cap, top, true);
+            this.token(cap, top, true)
 
             this.tokens.push({
                 type: 'blockquote_end',
-            });
+            })
 
-            continue;
+            continue
         }
         // list
         if (cap = this.rules.list.exec(src)) {
-            src = src.substring(cap[0].length);
-            bull = cap[2];
+            src = src.substring(cap[0].length)
+            bull = cap[2]
 
             this.tokens.push({
                 type: 'list_start',
                 ordered: bull.length > 1,
-            });
+            })
 
             // Get each top-level item.
-            cap = cap[0].match(this.rules.item);
+            cap = cap[0].match(this.rules.item)
 
             next = false
             l = cap.length
@@ -301,7 +312,7 @@ Lexer.prototype.token = function token(src, top, bq) {
         }
         // top-level paragraph
         if (top && (cap = this.rules.paragraph.exec(src))) {
-            src = src.substring(cap[0].length);
+            src = src.substring(cap[0].length)
             this.tokens.push({
                 type: 'paragraph',
                 text: cap[1].charAt(cap[1].length - 1) === '\n' ? cap[1].slice(0, -1) : cap[1],
@@ -312,19 +323,19 @@ Lexer.prototype.token = function token(src, top, bq) {
         // text
         if (cap = this.rules.text.exec(src)) {
             // Top-level should never reach here.
-            src = src.substring(cap[0].length);
+            src = src.substring(cap[0].length)
             this.tokens.push({
                 type: 'text',
                 text: cap[0],
             });
-            continue;
+            continue
         }
 
         if (src) {
             throw new
-            Error('Infinite loop on byte: ' + src.charCodeAt(0));
+            Error('Infinite loop on byte: ' + src.charCodeAt(0))
         }
     }
-    return this.tokens;
+    return { tokens: this.tokens, tocs: this.tocs }
 }
-export default Lexer
+module.exports = Lexer

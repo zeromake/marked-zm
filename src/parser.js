@@ -1,6 +1,6 @@
-import Renderer from './renderer'
-import InlineLexer from './inlinelexer'
-import defaults from './defaults'
+const Renderer = require('./renderer')
+const InlineLexer = require('./inlinelexer')
+const defaults = require('./defaults')
 
 function Parser(options) {
     this.tokens = []
@@ -15,25 +15,25 @@ function Parser(options) {
  * Static Parse Method
  */
 
-Parser.parse = function staticParse(src, options, renderer) {
+Parser.parse = function staticParse(param, options, renderer) {
     const parser = new Parser(options, renderer)
-    return parser.parse(src)
+    return parser.parse(param)
 };
 
 /**
  * Parse Loop
  */
 
-Parser.prototype.parse = function parse(src) {
+Parser.prototype.parse = function parse(param) {
+    const src = param.tokens
+    const tocs = param.tocs
     this.inline = new InlineLexer(src.links, this.options, this.renderer)
     const tocItems = []
-    src.forEach((token) => {
-        if (token.type === 'heading') {
-            const id = token.text.toLowerCase()
-            tocItems.push(this.renderer.tocItem(id, token.depth, token.text))
-        }
+    tocs.forEach((token) => {
+        const id = token.text.toLowerCase()
+        tocItems.push(this.renderer.tocItem(id, token.depth, token.text))
     })
-    this.inline.tocHTML = this.renderer.toc(tocItems.join(''))
+    this.tocHTML = this.renderer.toc(tocItems.join('\n'))
     this.tokens = src.reverse()
     let parseOut = ''
     while (this.next()) {
@@ -92,14 +92,14 @@ Parser.prototype.tok = function parTok() {
             return this.renderer.heading(
                 this.inline.output(this.token.text),
                 this.token.depth,
-                this.token.text,
+                this.token.text
             )
         }
     case 'code':
         {
             return this.renderer.code(this.token.text,
                 this.token.lang,
-                this.token.escaped,
+                this.token.escaped
             )
         }
     case 'table':
@@ -122,8 +122,8 @@ Parser.prototype.tok = function parTok() {
                 cell += this.renderer.tablecell(
                     this.inline.output(this.token.header[i]), {
                         header: true,
-                        align: this.token.align[i],
-                    },
+                        align: this.token.align[i]
+                    }
                 )
             }
             header += this.renderer.tablerow(cell);
@@ -136,8 +136,8 @@ Parser.prototype.tok = function parTok() {
                     cell += this.renderer.tablecell(
                         this.inline.output(row[j]), {
                             header: false,
-                            align: this.token.align[j],
-                        },
+                            align: this.token.align[j]
+                        }
                     )
                 }
 
@@ -200,6 +200,10 @@ Parser.prototype.tok = function parTok() {
         {
             return this.renderer.paragraph(this.parseText())
         }
+    case 'toc':
+        {
+            return this.tocHTML
+        }
     default:
         {
             const renderer = this.renderer[this.token.type]
@@ -210,4 +214,4 @@ Parser.prototype.tok = function parTok() {
     }
 }
 
-export default Parser
+module.exports = Parser

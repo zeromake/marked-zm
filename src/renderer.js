@@ -23,15 +23,15 @@ Renderer.prototype.code = function renCode(code, lang, escaped) {
     + '">'
     + (escaped ? code : escape(code, true))
     + '\n</code></pre>\n'
-};
+}
 
 Renderer.prototype.blockquote = function blockquote(quote) {
     return '<blockquote>\n' + quote + '</blockquote>\n'
-};
+}
 
 Renderer.prototype.html = function renHtml(html) {
     return html
-};
+}
 
 Renderer.prototype.heading = function heading(text, level) {
     const escapedText = text.toLowerCase()
@@ -39,7 +39,7 @@ Renderer.prototype.heading = function heading(text, level) {
     + level
     + '><a class="anchor" name="'
     + escapedText
-    + '" href="'
+    + '" href="#'
     + escapedText
     + '"><svg aria-hidden="true" class="octicon octicon-link" height="16"'
     + ' version="1.1" viewBox="0 0 16 16" width="16">'
@@ -57,20 +57,20 @@ Renderer.prototype.heading = function heading(text, level) {
 
 Renderer.prototype.hr = function hr() {
     return this.options.xhtml ? '<hr/>\n' : '<hr>\n'
-};
+}
 
 Renderer.prototype.list = function list(body, ordered) {
     const listType = ordered ? 'ol' : 'ul'
     return '<' + listType + '>\n' + body + '</' + listType + '>\n'
-};
+}
 
 Renderer.prototype.listitem = function listitem(text) {
     return '<li>' + text + '</li>\n'
-};
+}
 
 Renderer.prototype.paragraph = function paragraph(text) {
     return '<p>' + text + '</p>\n'
-};
+}
 
 Renderer.prototype.table = function table(header, body) {
     return '<table>\n'
@@ -81,39 +81,39 @@ Renderer.prototype.table = function table(header, body) {
     + body
     + '</tbody>\n'
     + '</table>\n'
-};
+}
 
 Renderer.prototype.tablerow = function tablerow(content) {
     return '<tr>\n' + content + '</tr>\n'
-};
+}
 
 Renderer.prototype.tablecell = function tablecell(content, flags) {
     const tableType = flags.header ? 'th' : 'td';
     const tableTag = flags.align ?
     '<' + tableType + ' style="text-align:' + flags.align + '">' : '<' + tableType + '>'
     return tableTag + content + '</' + tableType + '>\n'
-};
+}
 
 // span level renderer
 Renderer.prototype.strong = function strong(text) {
     return '<strong>' + text + '</strong>'
-};
+}
 
 Renderer.prototype.em = function em(text) {
     return '<em>' + text + '</em>'
-};
+}
 
 Renderer.prototype.codespan = function codespan(text) {
     return '<code>' + text + '</code>'
-};
+}
 
 Renderer.prototype.br = function br() {
     return this.options.xhtml ? '<br/>' : '<br>'
-};
+}
 
 Renderer.prototype.del = function del(text) {
     return '<del>' + text + '</del>'
-};
+}
 
 Renderer.prototype.link = function link(href, title, text) {
     if (this.options.sanitize) {
@@ -137,7 +137,7 @@ Renderer.prototype.link = function link(href, title, text) {
     }
     out += '>' + text + '</a>'
     return out
-};
+}
 
 Renderer.prototype.image = function image(href, title, text) {
     let out = '<img src="' + href + '" alt="' + text + '"'
@@ -151,7 +151,9 @@ Renderer.prototype.image = function image(href, title, text) {
 Renderer.prototype.text = function renText(text) {
     return text
 }
-
+Renderer.prototype.blank = function renText(text) {
+    return text
+}
 Renderer.prototype.toc = function renToc(items) {
     const html = '<div class="toc"><ul class="toc-tree">'
     + items
@@ -161,10 +163,20 @@ Renderer.prototype.toc = function renToc(items) {
 Renderer.prototype.tocItem = function tocItem(id, level, text) {
     return '<li class="toc-item toc-level-'
         + level
-        + '" <a class="toc-link" href="#'
+        + '"><a class="toc-link" href="#'
         + id
         + '"><span class="toc-number"></span><span class="toc-text">'
         + text
         + '</span></a></li>'
 }
-export default Renderer
+Renderer.prototype.emoji = function emoji(emojiName) {
+    const title = ':' + escape(emojiName) + ':'
+    return '<img src="https://cdn.bootcss.com/emojify.js/1.0/images/basic/'
+        + encodeURIComponent(emojiName)
+        + '.png" alt="'
+        + title
+        + '" title="'
+        + title
+        + '" class="emoji" align="absmiddle"/>'
+}
+module.exports = Renderer

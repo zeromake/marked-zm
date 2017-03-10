@@ -1,70 +1,7 @@
-import Renderer from './renderer'
-import defaults from './defaults'
-import { noop, escape, replace, merge } from './utils'
-
-const inline = {
-    escape: /^\\([\\`*{}[\]()#+\-.!_>])/,
-    autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
-    url: noop,
-    tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,
-    link: /^!?\[(inside)\]\(href\)/,
-    reflink: /^!?\[(inside)\]\s*\[([^\]]*)\]/,
-    nolink: /^!?\[((?:\[[^\]]*\]|[^[\]])*)\]/,
-    strong: /^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,
-    em: /^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
-    code: /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,
-    br: /^ {2,}\n(?!\s*$)/,
-    del: noop,
-    toc: /\s*\[TOC\]/,
-    text: /^[\s\S]+?(?=[\\<![_*`]| {2,}\n|$)/,
-};
-
-inline._inside = /(?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*/;
-inline._href = /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;
-
-inline.link = replace(inline.link)
-    ('inside', inline._inside)
-    ('href', inline._href)
-    ();
-
-inline.reflink = replace(inline.reflink)
-    ('inside', inline._inside)
-    ();
-
-/**
- * Normal Inline Grammar
- */
-
-inline.normal = merge({}, inline);
-
-/**
- * Pedantic Inline Grammar
- */
-
-inline.pedantic = merge({}, inline.normal, {
-    strong: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
-    em: /^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/,
-});
-
-/**
- * GFM Inline Grammar
- */
-
-inline.gfm = merge({}, inline.normal, {
-    escape: replace(inline.escape)('])', '~|])')(),
-    url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
-    del: /^~~(?=\S)([\s\S]*?\S)~~/,
-    text: replace(inline.text)(']|', '~]|')('|', '|https?://|')(),
-});
-
-/**
- * GFM + Line Breaks Inline Grammar
- */
-
-inline.breaks = merge({}, inline.gfm, {
-    br: replace(inline.br)('{2,}', '*')(),
-    text: replace(inline.gfm.text)('{2,}', '*')(),
-});
+const Renderer = require('./renderer')
+const defaults = require('./defaults')
+const { escape } = require('./utils')
+const inline = require('./inline')
 
 /**
  * Inline Lexer & Compiler
@@ -119,11 +56,11 @@ InlineLexer.prototype.output = function staticOutput(src) {
     let cap
 
     while (src) {
-        // toc
-        if (cap = this.rules.toc.exec(src)) {
+        // emoji
+        if (cap = this.rules.emoji.exec(src)) {
             src = src.substring(cap[0].length)
-            out += this.tocHTML
-            continue
+            out += cap[1]
+            out += this.renderer.emoji(cap[2])
         }
         // escape
         if (cap = this.rules.escape.exec(src)) {
@@ -306,4 +243,4 @@ InlineLexer.prototype.mangle = function mangle(text) {
 }
 
 
-export default InlineLexer
+module.exports = InlineLexer

@@ -1,4 +1,4 @@
-export const merge = function merge(obj) {
+const merge = function merge(obj) {
     let target
     let key
     let i = 1
@@ -13,7 +13,7 @@ export const merge = function merge(obj) {
     }
     return obj
 }
-export const escape = function escape(html, encode) {
+const escape = function escape(html, encode) {
     return html
     .replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -22,7 +22,7 @@ export const escape = function escape(html, encode) {
     .replace(/'/g, '&#39;');
 }
 
-export const replace = function replace(regex, opt) {
+const replace = function replace(regex, opt) {
     regex = regex.source
     opt = opt || ''
     return function self(name, val) {
@@ -33,8 +33,12 @@ export const replace = function replace(regex, opt) {
         return self
     }
 }
-export const noop = function noop() {}
+const noop = function noop() {}
 noop.exec = noop
 
-export default{
+module.exports = {
+    merge,
+    escape,
+    replace,
+    noop,
 }

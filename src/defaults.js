@@ -1,4 +1,4 @@
-import Renderer from './renderer'
+const Renderer = require('./renderer')
 
 const defaults = {
     gfm: true,
@@ -17,4 +17,4 @@ const defaults = {
     renderer: new Renderer(),
     xhtml: false,
 }
-export default defaults
+module.exports = defaults
