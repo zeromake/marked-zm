@@ -59,13 +59,26 @@ Renderer.prototype.hr = function hr() {
     return this.options.xhtml ? '<hr/>\n' : '<hr>\n'
 }
 
-Renderer.prototype.list = function list(body, ordered) {
+Renderer.prototype.list = function list(body, ordered, checked) {
     const listType = ordered ? 'ol' : 'ul'
-    return '<' + listType + '>\n' + body + '</' + listType + '>\n'
+    const listClass = checked ? 'contains-task-list' : 'contains-list'
+    return '<' + listType
+    + ' class="'
+    + listClass
+    + '">\n'
+    + body
+    + '</'
+    + listType
+    + '>\n'
 }
 
-Renderer.prototype.listitem = function listitem(text) {
-    return '<li>' + text + '</li>\n'
+Renderer.prototype.listitem = function listitem(text, checked) {
+    const isCheckedItem = typeof checked === 'boolean'
+    const itemclass = isCheckedItem ? 'task-list-item' : 'list-item'
+    const checkeddom = isCheckedItem ? '<input class="task-list-item-checkbox"'
+    + (checked ? ' checked="checked"' : '')
+    + ' type="checkbox" disabled="disabled">\n' : ''
+    return '<li class="' + itemclass + '">' + checkeddom + text + '</li>\n'
 }
 
 Renderer.prototype.paragraph = function paragraph(text) {

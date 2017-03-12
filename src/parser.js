@@ -159,32 +159,32 @@ Parser.prototype.tok = function parTok() {
         {
             let body = ''
             const ordered = this.token.ordered
-
+            const isChecked = this.token.checked
             while (this.next().type !== 'list_end') {
                 body += this.tok()
             }
 
-            return this.renderer.list(body, ordered)
+            return this.renderer.list(body, ordered, isChecked)
         }
     case 'list_item_start':
         {
             let body = ''
-
+            const isChecked = this.token.checked
             while (this.next().type !== 'list_item_end') {
                 body += this.token.type === 'text' ? this.parseText() : this.tok()
             }
 
-            return this.renderer.listitem(body)
+            return this.renderer.listitem(body, isChecked)
         }
     case 'loose_item_start':
         {
             let body = ''
-
+            const isChecked = this.token.checked
             while (this.next().type !== 'list_item_end') {
                 body += this.tok()
             }
 
-            return this.renderer.listitem(body)
+            return this.renderer.listitem(body, isChecked)
         }
     case 'html':
         {
@@ -203,6 +203,13 @@ Parser.prototype.tok = function parTok() {
     case 'toc':
         {
             return this.tocHTML
+        }
+    case 'checked':
+        {
+            const checkedDom = '<div class="checked-item"><input '
+            + (this.token.isCheck ? 'checked="checked"' : '')
+            + ' type="checkbox">'
+            return checkedDom + this.inline.output(this.token.text) + '</div>'
         }
     default:
         {

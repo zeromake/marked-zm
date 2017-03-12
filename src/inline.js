@@ -13,7 +13,7 @@ const inline = {
     code: /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,
     br: /^ {2,}\n(?!\s*$)/,
     del: noop,
-    text: /^[\s\S]+?(?=[\\<![_*`]| {2,}\n|$)/,
+    text: /^[\s\S]+?(?=[\\<![_*`]| {2,}\n|$)/
 }
 
 inline._inside = /(?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*/
@@ -51,8 +51,8 @@ inline.gfm = merge({}, inline.normal, {
     escape: replace(inline.escape)('])', '~|])')(),
     url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
     del: /^~~(?=\S)([\s\S]*?\S)~~/,
-    text: replace(inline.text)(']|', '~]|')('|', '|https?://|')(),
-    emoji: /^(.*):([a-zA-Z0-9_\-+]+):/
+    text: replace(inline.text)(']|', '~]|:[a-zA-Z0-9_\\-+]+:|https?://|')(),
+    emoji: /^:([a-zA-Z0-9_\-+]+):/
 })
 
 /**
@@ -63,5 +63,50 @@ inline.breaks = merge({}, inline.gfm, {
     br: replace(inline.br)('{2,}', '*')(),
     text: replace(inline.gfm.text)('{2,}', '*')(),
 })
+
+/* handle = {
+    emoji: function emojiHandle(cap) {
+
+    },
+    escape: function escapeHandle() {
+
+    },
+    autolink: function autolinkHandle() {
+
+    },
+    url: function urlHandle() {
+
+    },
+    tag: function tagHandle() {
+
+    },
+    link: function linkHandle() {
+
+    },
+    reflink: function reflinkHandle() {
+
+    },
+    nolink: function nolinkHandle() {
+
+    },
+    strong: function strongHandle() {
+
+    },
+    em: function emHandle() {
+
+    },
+    code: function codeHandle() {
+
+    },
+    br: function brHandle() {
+
+    },
+    del: function delHandle() {
+
+    },
+    text: function textHandle() {
+
+    }
+} */
 
 module.exports = inline

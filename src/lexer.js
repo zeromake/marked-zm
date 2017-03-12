@@ -42,14 +42,6 @@ Lexer.prototype.token = function token(src, top, bq) {
     let i
     let l
     while (src) {
-        // toc
-        if (cap = this.rules.toc.exec(src)) {
-            src = src.substring(cap[0].length)
-            this.tokens.push({
-                type: 'toc'
-            })
-        }
-
         // newline
         if (cap = this.rules.newline.exec(src)) {
             src = src.substring(cap[0].length);
@@ -59,6 +51,25 @@ Lexer.prototype.token = function token(src, top, bq) {
                 })
             }
         }
+
+        /* if (cap = this.rules.checked.exec(src)) {
+            src = src.substring(cap[0].length)
+            this.tokens.push({
+                type: 'checked',
+                text: cap[2],
+                isCheck: cap[1] === 'x'
+            })
+            continue
+        } */
+        // toc
+        if (cap = this.rules.toc.exec(src)) {
+            src = src.substring(cap[0].length)
+            this.tokens.push({
+                type: 'toc'
+            })
+            continue
+        }
+
 
         // code
         if (cap = this.rules.code.exec(src)) {
@@ -170,16 +181,18 @@ Lexer.prototype.token = function token(src, top, bq) {
         }
         // list
         if (cap = this.rules.list.exec(src)) {
+            const isChecked = this.rules.checkedlist.test(src)
             src = src.substring(cap[0].length)
+            let checked
             bull = cap[2]
-
             this.tokens.push({
                 type: 'list_start',
                 ordered: bull.length > 1,
+                checked: isChecked
             })
 
             // Get each top-level item.
-            cap = cap[0].match(this.rules.item)
+            cap = cap[0].match(isChecked ? this.rules.checkeditem : this.rules.item)
 
             next = false
             l = cap.length
@@ -192,6 +205,12 @@ Lexer.prototype.token = function token(src, top, bq) {
                 // so it is seen as the next token.
                 space = item.length
                 item = item.replace(/^ *([*+-]|\d+\.) +/, '')
+                if (isChecked) {
+                    checked = /^\[x\]/.test(item)
+                    item = item.replace(/^\[(x| *)\]/, '')
+                } else {
+                    checked = null
+                }
 
                 // Outdent whatever the
                 // list item contains. Hacky.
@@ -221,6 +240,7 @@ Lexer.prototype.token = function token(src, top, bq) {
 
                 this.tokens.push({
                     type: loose ? 'loose_item_start' : 'list_item_start',
+                    checked
                 })
 
                 // Recurse.

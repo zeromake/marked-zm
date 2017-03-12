@@ -39,7 +39,7 @@ InlineLexer.rules = inline
  * Static Lexing/Compiling Method
  */
 
-InlineLexer.output = function output(src, links, options) {
+InlineLexer.output = function staticOutput(src, links, options) {
     const inlineObj = new InlineLexer(links, options)
     return inlineObj.output(src)
 };
@@ -48,7 +48,7 @@ InlineLexer.output = function output(src, links, options) {
  * Lexing/Compiling
  */
 
-InlineLexer.prototype.output = function staticOutput(src) {
+InlineLexer.prototype.output = function output(src) {
     let out = ''
     let link
     let text
@@ -59,8 +59,7 @@ InlineLexer.prototype.output = function staticOutput(src) {
         // emoji
         if (cap = this.rules.emoji.exec(src)) {
             src = src.substring(cap[0].length)
-            out += cap[1]
-            out += this.renderer.emoji(cap[2])
+            out += this.renderer.emoji(cap[1])
         }
         // escape
         if (cap = this.rules.escape.exec(src)) {

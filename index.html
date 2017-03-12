@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>marked-test</title>
+    <script src="./lib/marked.js">
+    </script>
+</head>
+<body>
+<div class="text">
+    <div class="editor">
+        <textarea id="myEditor" class="editor-input">
+
+        </textarea>
+    </div>
+    <div class="preview">
+
+    </div>
+</div>
+<script>
+    (function(global) {
+        document.addEventListener("DOMContentLoaded", function(){
+            document.querySelector("#myEditor").addEventListener("input", function(){
+                document.querySelector(".preview").innerHTML = marked(this.value)
+            })
+        })
+    })(this)
+</script>
+</body>
+</html>
