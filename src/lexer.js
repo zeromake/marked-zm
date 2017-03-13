@@ -141,11 +141,13 @@ Lexer.prototype.token = function token(src, top, bq) {
         // lheading
         if (cap = this.rules.lheading.exec(src)) {
             src = src.substring(cap[0].length)
-            this.tokens.push({
+            const headToken = {
                 type: 'heading',
                 depth: cap[2] === '=' ? 1 : 2,
                 text: cap[1],
-            })
+            }
+            this.tokens.push(headToken)
+            this.tocs.push(headToken)
             continue
         }
 

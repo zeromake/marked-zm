@@ -40,9 +40,9 @@ Renderer.prototype.heading = function heading(text, level) {
     return '<h'
     + level
     + '><a class="anchor" name="'
-    + escapedText
+    + escape(escapedText)
     + '" href="#'
-    + escapedText
+    + escape(escapedText)
     + '"><svg aria-hidden="true" class="octicon octicon-link" height="16"'
     + ' version="1.1" viewBox="0 0 16 16" width="16">'
     + '<path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55'
@@ -179,7 +179,7 @@ Renderer.prototype.tocItem = function tocItem(id, level, text) {
     return '<li class="toc-item toc-level-'
         + level
         + '"><a class="toc-link" href="#'
-        + id
+        + escape(id)
         + '"><span class="toc-number"></span><span class="toc-text">'
         + text
         + '</span></a></li>'

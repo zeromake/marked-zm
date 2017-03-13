@@ -66,6 +66,11 @@ InlineLexer.prototype.output = function output(src) {
             src = src.substring(cap[0].length)
             out += this.renderer.emoji(cap[1])
         }
+        // icon
+        if (cap = this.rules.icon.exec(src)) {
+            src = src.substring(cap[0].length)
+            out += this.renderer.html(cap[0])
+        }
         // escape
         if (cap = this.rules.escape.exec(src)) {
             src = src.substring(cap[0].length)
