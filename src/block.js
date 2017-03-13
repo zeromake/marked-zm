@@ -14,10 +14,10 @@ const block = {
     html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
     def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
     table: noop,
-    paragraph: /^((?:[^\n]+(\n?)(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
+    paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
     text: /^[^\n]+/,
-    toc: /\s*\[TOC\]/,
-    checkedlist: /^( *)(bull) \[( *|x)\] [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n|\s*$)/
+    toc: /^ *\[TOC\](\n|$)/,
+    checkedlist: /^( *)(bull) +\[( *|x)\] [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n|\s*$)/
 }
 block.bullet = /(?:[*+-]|\d+\.)/
 block.item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/
@@ -28,7 +28,7 @@ block.list = replace(block.list)
     ('def', '\\n+(?=' + block.def.source + ')')
     ()
 
-block.checkeditem = /^( *)(bull) \[( *|x)\] [^\n]*(?:\n(?!\1bull )[^\n]*)*/
+block.checkeditem = /^( *)(bull) +\[( *|x)\] [^\n]*(?:\n(?!\1bull )[^\n]*)*/
 block.checkeditem = replace(block.checkeditem, 'gm')(/bull/g, block.bullet)()
 block.checkedlist = replace(block.checkedlist)
     (/bull/g, block.bullet)
