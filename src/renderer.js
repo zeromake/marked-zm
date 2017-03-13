@@ -1,3 +1,6 @@
+
+import { escape } from './utils'
+
 function Renderer(options) {
     this.options = options || {};
 }
@@ -16,7 +19,6 @@ Renderer.prototype.code = function renCode(code, lang, escaped) {
         + (escaped ? code : escape(code, true))
         + '\n</code></pre>'
     }
-
     return '<pre><code class="'
     + this.options.langPrefix
     + escape(lang, true)

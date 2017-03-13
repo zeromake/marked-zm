@@ -56,6 +56,11 @@ InlineLexer.prototype.output = function output(src) {
     let cap
 
     while (src) {
+        // newline
+        if (cap = /^\n+/.exec(src)) {
+            src = src.substring(cap[0].length)
+            out += '<br/>'
+        }
         // emoji
         if (cap = this.rules.emoji.exec(src)) {
             src = src.substring(cap[0].length)

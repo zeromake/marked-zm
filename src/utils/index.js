@@ -14,12 +14,13 @@ const merge = function merge(obj) {
     return obj
 }
 const escape = function escape(html, encode) {
-    return html
+    html = html
     .replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+    return html
 }
 
 const replace = function replace(regex, opt) {
