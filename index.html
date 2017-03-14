@@ -9,21 +9,22 @@
     <link rel="stylesheet" type="text/css" href="./markdown.css">
     <style type="text/css">
         .content{
+            font-size: 0;
             width:auto;
+            min-height: 300px;
             height:90vh;
             border:1px solid #ccc;
         }
-        .content *{
-            box-sizing: border-box;
-        }
         .editor-input, .markdown-body{
-            font-size: 1rem;
+            box-sizing: border-box;
+            font-size: 14px;
             display: inline-block;
             width: 50%;
             height: 100%;
             padding: 10px;
         }
 		.editor-input{
+            margin: 0;
             resize: none;
             outline: none;
             border: none;
@@ -36,19 +37,19 @@
             overflow: auto;
         }
         .toc-level-2{
-            margin-left: 1rem;
+            margin-left: 14px;
         }
         .toc-level-3{
-            margin-left: 2rem;
+            margin-left: 28px;
         }
         .toc-level-4{
-            margin-left: 3rem;
+            margin-left: 42px;
         }
         .toc-level-5{
-            margin-left: 4rem;
+            margin-left: 56px;
         }
         .toc-level-6{
-            margin-left: 5rem;
+            margin-left: 70px;
         }
         code{
             color: #c7254e;
@@ -56,7 +57,7 @@
     </style>
 </head>
 <body>
-<div class="content"><textarea id="myEditor" spellcheck="false" class="editor-input"></textarea><div class="markdown-body"></div>
+<div class="content"><textarea id="myEditor" spellcheck="false" class="editor-input"></textarea><div id="myView" class="markdown-body"></div>
 </div>
 <script>
     (function(global) {
@@ -66,11 +67,26 @@
                 return hljs.highlightAuto(code).value;
             }
         })*/
-        document.addEventListener("DOMContentLoaded", function(){
-            document.querySelector("#myEditor").addEventListener("input", function(){
-                document.querySelector(".markdown-body").innerHTML = marked(this.value?this.value:"", { sanitize: true })
+        if (!Array.prototype.forEach){
+            Array.prototype.forEach = function (fn) {
+                for (var i = 0, len=this.length; i < len; i++) {
+                    fn(this[i], i)
+                }
+            }
+        }
+        if (document.addEventListener){
+            document.addEventListener("DOMContentLoaded", function Loaded(){
+                document.getElementById('myEditor').addEventListener("input", function(){
+                    document.getElementById('myView').innerHTML = marked(this.value?this.value:"", { sanitize: true })
+                })
+                document.removeEventListener("DOMContentLoaded", Loaded)
             })
-        })
+        }else{
+            document.getElementById('myEditor').onchange=function(){
+                console.log('onchange')
+                document.getElementById('myView').innerHTML = marked(this.value?this.value:"", { sanitize: true })
+            }
+        }
     })(this)
 </script>
 </body>

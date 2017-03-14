@@ -29,10 +29,12 @@ Parser.prototype.parse = function parse(param) {
     const tocs = param.tocs
     this.inline = new InlineLexer(src.links, this.options, this.renderer)
     const tocItems = []
-    tocs.forEach((token) => {
+    const tocLen = tocs.length
+    for (let i = 0; i < tocLen; i++) {
+        const token = tocs[i]
         const id = token.text.toLowerCase()
         tocItems.push(this.renderer.tocItem(id, token.depth, token.text))
-    })
+    }
     this.tocHTML = this.renderer.toc(tocItems.join('\n'))
     this.tokens = src.reverse()
     let parseOut = ''
@@ -40,7 +42,7 @@ Parser.prototype.parse = function parse(param) {
         parseOut += this.tok()
     }
     return parseOut
-};
+}
 
 /**
  * Next Token
