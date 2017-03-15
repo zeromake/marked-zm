@@ -35,6 +35,12 @@
 		}
         .markdown-body{
             overflow: auto;
+            font-family: "Source Sans Pro",sans-serif;
+            line-height: 26.1px;
+            outline-color: rgb(63, 63, 63);
+            outline-style: none;
+            outline-width: 0px;
+            text-align: justif;
         }
         .toc-level-2{
             margin-left: 14px;
@@ -67,6 +73,10 @@
                 return hljs.highlightAuto(code).value;
             }
         })*/
+        marked.use(function() {
+            this.Lexer.block.push(['test', function(state){
+            }, 131])
+        })
         if (!Array.prototype.forEach){
             Array.prototype.forEach = function (fn) {
                 for (var i = 0, len=this.length; i < len; i++) {

@@ -1,6 +1,7 @@
 const Renderer = require('./renderer')
 const InlineLexer = require('./inlinelexer')
 const defaults = require('./defaults')
+const tokenParser = require('./token-parser')
 
 function Parser(options) {
     this.tokens = []
@@ -9,12 +10,13 @@ function Parser(options) {
     this.options.renderer = this.options.renderer || new Renderer()
     this.renderer = this.options.renderer
     this.renderer.options = this.options
+    this.tokenParser = tokenParser
 }
 
 /**
  * Static Parse Method
  */
-
+Parser.tokenParser = tokenParser
 Parser.parse = function staticParse(param, options, renderer) {
     const parser = new Parser(options, renderer)
     return parser.parse(param)
@@ -24,10 +26,10 @@ Parser.parse = function staticParse(param, options, renderer) {
  * Parse Loop
  */
 
-Parser.prototype.parse = function parse(param) {
-    const src = param.tokens
-    const tocs = param.tocs
-    this.inline = new InlineLexer(src.links, this.options, this.renderer)
+Parser.prototype.parse = function parse(state) {
+    const src = state.tokens
+    const tocs = state.tocs
+    this.inline = new InlineLexer(state.links, this.options, this.renderer)
     const tocItems = []
     const tocLen = tocs.length
     for (let i = 0; i < tocLen; i++) {
@@ -80,147 +82,15 @@ Parser.prototype.parseText = function parseText() {
  */
 
 Parser.prototype.tok = function parTok() {
-    switch (this.token.type) {
-    case 'space':
-        {
-            return '';
-        }
-    case 'hr':
-        {
-            return this.renderer.hr()
-        }
-    case 'heading':
-        {
-            return this.renderer.heading(
-                this.inline.output(this.token.text),
-                this.token.depth,
-                this.token.text
-            )
-        }
-    case 'code':
-        {
-            return this.renderer.code(this.token.text,
-                this.token.lang,
-                this.token.escaped
-            )
-        }
-    case 'table':
-        {
-            let header = ''
-            let body = ''
-            let i
-            let row
-            let cell
-            // let flags
-            let j
-
-            // header
-            cell = '';
-            for (i = 0; i < this.token.header.length; i++) {
-                /* flags = {
-                    header: true,
-                    align: this.token.align[i]
-                }; */
-                cell += this.renderer.tablecell(
-                    this.inline.output(this.token.header[i]), {
-                        header: true,
-                        align: this.token.align[i]
-                    }
-                )
-            }
-            header += this.renderer.tablerow(cell);
-
-            for (i = 0; i < this.token.cells.length; i++) {
-                row = this.token.cells[i]
-
-                cell = ''
-                for (j = 0; j < row.length; j++) {
-                    cell += this.renderer.tablecell(
-                        this.inline.output(row[j]), {
-                            header: false,
-                            align: this.token.align[j]
-                        }
-                    )
-                }
-
-                body += this.renderer.tablerow(cell)
-            }
-            return this.renderer.table(header, body)
-        }
-    case 'blockquote_start':
-        {
-            let body = ''
-
-            while (this.next().type !== 'blockquote_end') {
-                body += this.tok()
-            }
-
-            return this.renderer.blockquote(body)
-        }
-    case 'list_start':
-        {
-            let body = ''
-            const ordered = this.token.ordered
-            const isChecked = this.token.checked
-            while (this.next().type !== 'list_end') {
-                body += this.tok()
-            }
-
-            return this.renderer.list(body, ordered, isChecked)
-        }
-    case 'list_item_start':
-        {
-            let body = ''
-            const isChecked = this.token.checked
-            while (this.next().type !== 'list_item_end') {
-                body += this.token.type === 'text' ? this.parseText() : this.tok()
-            }
-
-            return this.renderer.listitem(body, isChecked)
-        }
-    case 'loose_item_start':
-        {
-            let body = ''
-            const isChecked = this.token.checked
-            while (this.next().type !== 'list_item_end') {
-                body += this.tok()
-            }
-
-            return this.renderer.listitem(body, isChecked)
-        }
-    case 'html':
-        {
-            const html = !this.token.pre && !this.options.pedantic ?
-                this.inline.output(this.token.text) : this.token.text
-            return this.renderer.html(html)
-        }
-    case 'paragraph':
-        {
-            return this.renderer.paragraph(this.inline.output(this.token.text))
-        }
-    case 'text':
-        {
-            return this.renderer.paragraph(this.parseText())
-        }
-    case 'toc':
-        {
-            return this.tocHTML
-        }
-    case 'checked':
-        {
-            const checkedDom = '<div class="checked-item"><input '
-            + (this.token.isCheck ? 'checked="checked"' : '')
-            + ' type="checkbox">'
-            return checkedDom + this.inline.output(this.token.text) + '</div>'
-        }
-    default:
-        {
-            const renderer = this.renderer[this.token.type]
-            if (typeof renderer === 'function') {
-                return renderer.call(this, this.token.text, this.renderer)
-            }
-        }
+    const tokenFun = this.tokenParser[this.token.type]
+    if (typeof tokenFun === 'function') {
+        return tokenFun.call(this)
     }
+    const renderer = this.renderer[this.token.type]
+    if (typeof renderer === 'function') {
+        return renderer.call(this.renderer, this.token, this)
+    }
+    return ''
 }
 
 module.exports = Parser

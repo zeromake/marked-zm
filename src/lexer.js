@@ -1,10 +1,10 @@
 const defaults = require('./defaults')
 const block = require('./block')
+const blockFun = require('./rules_block')
+const { merge, sortRules } = require('./utils')
 
 function Lexer(options) {
-    this.tokens = []
-    this.tokens.links = {}
-    this.tocs = []
+    this.block = sortRules(blockFun)
     this.options = options || defaults
     this.rules = block.normal
     if (this.options.gfm) {
@@ -14,9 +14,26 @@ function Lexer(options) {
             this.rules = block.gfm
         }
     }
+    this.state = {
+        tokens: [],
+        tocs: [],
+        rules: this.rules,
+        links: {},
+        token: (src, top, bq, offset) => {
+            const oldstate = {
+                src: this.state.src,
+                top: this.state.top,
+                bq: this.state.bq,
+                offset: this.state.offset
+            }
+            const state = this.token(src, top, bq, offset)
+            merge(this.state, oldstate)
+            return state
+        }
+    }
 }
 Lexer.rules = block
-
+Lexer.block = blockFun
 Lexer.lex = function staticLex(src, options) {
     const lexer = new Lexer(options)
     return lexer.lex(src)
@@ -30,334 +47,44 @@ Lexer.prototype.lex = function lex(src) {
 
     return this.token(src, true)
 }
-Lexer.prototype.token = function token(src, top, bq) {
+Lexer.prototype.token = function token(src, top, bq, offsetStart) {
     src = src.replace(/^ +$/gm, '')
-    let next
-    let loose
-    let cap
-    let bull
-    let b
-    let item
-    let space
-    let i
-    let l
-    while (src) {
-        // newline
-        if (cap = this.rules.newline.exec(src)) {
-            src = src.substring(cap[0].length);
-            if (cap[0].length > 1) {
-                this.tokens.push({
-                    type: 'space',
-                })
-            }
-        }
-
-        /* if (cap = this.rules.checked.exec(src)) {
-            src = src.substring(cap[0].length)
-            this.tokens.push({
-                type: 'checked',
-                text: cap[2],
-                isCheck: cap[1] === 'x'
-            })
-            continue
-        } */
-        // toc
-        if (cap = this.rules.toc.exec(src)) {
-            src = src.substring(cap[0].length)
-            this.tokens.push({
-                type: 'toc'
-            })
-            continue
-        }
-
-
-        // code
-        if (cap = this.rules.code.exec(src)) {
-            src = src.substring(cap[0].length);
-            cap = cap[0].replace(/^ {4}/gm, '');
-            this.tokens.push({
-                type: 'code',
-                text: !this.options.pedantic ? cap.replace(/\n+$/, '') : cap,
-            });
-            continue;
-        }
-
-        // fences (gfm)
-        if (cap = this.rules.fences.exec(src)) {
-            src = src.substring(cap[0].length);
-            this.tokens.push({
-                type: 'code',
-                lang: cap[2],
-                text: cap[3] || '',
-            });
-            continue;
-        }
-
-        // heading
-        if (cap = this.rules.heading.exec(src)) {
-            src = src.substring(cap[0].length)
-            const headToken = {
-                type: 'heading',
-                depth: cap[1].length,
-                text: cap[2],
-            }
-            this.tocs.push(headToken)
-            this.tokens.push(headToken)
-            continue
-        }
-
-        // table no leading pipe (gfm)
-        if (top && (cap = this.rules.nptable.exec(src))) {
-            src = src.substring(cap[0].length);
-
-            item = {
-                type: 'table',
-                header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-                align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-                cells: cap[3].replace(/\n$/, '').split('\n'),
-            }
-
-            for (i = 0; i < item.align.length; i++) {
-                if (/^ *-+: *$/.test(item.align[i])) {
-                    item.align[i] = 'right'
-                } else if (/^ *:-+: *$/.test(item.align[i])) {
-                    item.align[i] = 'center'
-                } else if (/^ *:-+ *$/.test(item.align[i])) {
-                    item.align[i] = 'left'
-                } else {
-                    item.align[i] = null
-                }
-            }
-
-            for (i = 0; i < item.cells.length; i++) {
-                item.cells[i] = item.cells[i].split(/ *\| */)
-            }
-
-            this.tokens.push(item)
-
-            continue
-        }
-
-        // lheading
-        if (cap = this.rules.lheading.exec(src)) {
-            src = src.substring(cap[0].length)
-            const headToken = {
-                type: 'heading',
-                depth: cap[2] === '=' ? 1 : 2,
-                text: cap[1],
-            }
-            this.tokens.push(headToken)
-            this.tocs.push(headToken)
-            continue
-        }
-
-        // hr
-        if (cap = this.rules.hr.exec(src)) {
-            src = src.substring(cap[0].length)
-            this.tokens.push({
-                type: 'hr',
-            })
-            continue
-        }
-
-        // blockquote
-        if (cap = this.rules.blockquote.exec(src)) {
-            src = src.substring(cap[0].length)
-
-            this.tokens.push({
-                type: 'blockquote_start',
-            })
-
-            cap = cap[0].replace(/^ *> ?/gm, '')
-
-            // Pass `top` to keep the current
-            // "toplevel" state. This is exactly
-            // how markdown.pl works.
-            this.token(cap, top, true)
-
-            this.tokens.push({
-                type: 'blockquote_end',
-            })
-
-            continue
-        }
-        // list
-        if (cap = this.rules.list.exec(src)) {
-            const isChecked = this.rules.checkedlist.test(src)
-            src = src.substring(cap[0].length)
-            let checked
-            bull = cap[2]
-            this.tokens.push({
-                type: 'list_start',
-                ordered: bull.length > 1,
-                checked: isChecked
-            })
-
-            // Get each top-level item.
-            cap = cap[0].match(isChecked ? this.rules.checkeditem : this.rules.item)
-
-            next = false
-            l = cap.length
-            i = 0
-
-            for (; i < l; i++) {
-                item = cap[i]
-
-                // Remove the list item's bullet
-                // so it is seen as the next token.
-                space = item.length
-                item = item.replace(/^ *([*+-]|\d+\.) +/, '')
-                if (isChecked) {
-                    checked = /^\[x\]/.test(item)
-                    item = item.replace(/^\[(x| *)\]/, '')
-                } else {
-                    checked = null
-                }
-
-                // Outdent whatever the
-                // list item contains. Hacky.
-                if (~item.indexOf('\n ')) {
-                    space -= item.length;
-                    item = !this.options.pedantic ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '') : item.replace(/^ {1,4}/gm, '');
-                }
-
-                // Determine whether the next list item belongs here.
-                // Backpedal if it does not belong in this list.
-                if (this.options.smartLists && i !== l - 1) {
-                    b = block.bullet.exec(cap[i + 1])[0]
-                    if (bull !== b && !(bull.length > 1 && b.length > 1)) {
-                        src = cap.slice(i + 1).join('\n') + src
-                        i = l - 1
+    this.state.top = top
+    this.state.src = src
+    this.state.bq = bq
+    this.state.offset = offsetStart || 0
+    // console.log('src:', src);
+    while (this.state.src) {
+        let flag = false
+        let i
+        let offset = this.state.offset
+        for (i = 0; i < this.block.length; i++) {
+            const rule = this.block[i]
+            if (rule && rule.length > 1 && typeof rule[1] === 'function') {
+                if (rule[1].call(this, this.state)) {
+                    if (offset < this.state.offset) {
+                        offset = this.state.offset
+                    } else {
+                        throw new Error('offset no change: '
+                            + rule[0]
+                            + ';last offset: '
+                            + offset + 'now offset: '
+                            + this.state.offset)
                     }
+                    flag = true
+                    break
                 }
-
-                // Determine whether item is loose or not.
-                // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
-                // for discount behavior.
-                loose = next || /\n\n(?!\s*$)/.test(item)
-                if (i !== l - 1) {
-                    next = item.charAt(item.length - 1) === '\n'
-                    if (!loose) loose = next
-                }
-
-                this.tokens.push({
-                    type: loose ? 'loose_item_start' : 'list_item_start',
-                    checked
-                })
-
-                // Recurse.
-                this.token(item, false, bq)
-
-                this.tokens.push({
-                    type: 'list_item_end',
-                })
+            } else {
+                throw new Error('rule is not array or index=1 not is function:', rule)
             }
-
-            this.tokens.push({
-                type: 'list_end',
-            })
-
+        }
+        if (flag) {
             continue
         }
-
-        // html
-        if (cap = this.rules.html.exec(src)) {
-            src = src.substring(cap[0].length)
-            this.tokens.push({
-                type: this.options.sanitize ? 'paragraph' : 'html',
-                pre: !this.options.sanitizer && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
-                text: cap[0],
-            })
-            continue
-        }
-
-        // def
-        if ((!bq && top) && (cap = this.rules.def.exec(src))) {
-            src = src.substring(cap[0].length)
-            this.tokens.links[cap[1].toLowerCase()] = {
-                href: cap[2],
-                title: cap[3],
-            }
-            continue
-        }
-
-        // table (gfm)
-        if (top && (cap = this.rules.table.exec(src))) {
-            src = src.substring(cap[0].length)
-
-            item = {
-                type: 'table',
-                header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-                align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-                cells: cap[3].replace(/(?: *\| *)?\n$/, '').split('\n'),
-            }
-
-            for (i = 0; i < item.align.length; i++) {
-                if (/^ *-+: *$/.test(item.align[i])) {
-                    item.align[i] = 'right'
-                } else if (/^ *:-+: *$/.test(item.align[i])) {
-                    item.align[i] = 'center'
-                } else if (/^ *:-+ *$/.test(item.align[i])) {
-                    item.align[i] = 'left'
-                } else {
-                    item.align[i] = null
-                }
-            }
-
-            for (i = 0; i < item.cells.length; i++) {
-                item.cells[i] = item.cells[i]
-                    .replace(/^ *\| *| *\| *$/g, '')
-                    .split(/ *\| */)
-            }
-
-            this.tokens.push(item)
-
-            continue
-        }
-        // extended other
-        if (this.options.extended && this.options.extended.length > 0) {
-            const extendedLen = this.options.extended.length
-            let isToken = false
-            for (let h = 0; h < extendedLen; h++) {
-                const extended = this.options.extended[h]
-                if (typeof extended === 'function') {
-                    const tokenAndLen = extended.bind(this)(src)
-                    if (tokenAndLen) {
-                        this.tokens.push(tokenAndLen.token)
-                        src = src.substring(tokenAndLen.sublen)
-                        isToken = true
-                        break
-                    }
-                }
-            }
-            if (isToken) continue
-        }
-        // top-level paragraph
-        if (top && (cap = this.rules.paragraph.exec(src))) {
-            src = src.substring(cap[0].length)
-            this.tokens.push({
-                type: 'paragraph',
-                text: cap[1].charAt(cap[1].length - 1) === '\n' ? cap[1].slice(0, -1) : cap[1],
-            })
-            continue
-        }
-
-        // text
-        if (cap = this.rules.text.exec(src)) {
-            // Top-level should never reach here.
-            src = src.substring(cap[0].length)
-            this.tokens.push({
-                type: 'text',
-                text: cap[0],
-            });
-            continue
-        }
-
-        if (src) {
-            throw new
-            Error('Infinite loop on byte: ' + src.charCodeAt(0))
+        if (this.state.src) {
+            throw new Error('Infinite loop on byte: ' + src.charCodeAt(0))
         }
     }
-    return { tokens: this.tokens, tocs: this.tocs }
+    return this.state
 }
 module.exports = Lexer

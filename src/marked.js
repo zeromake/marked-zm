@@ -63,7 +63,7 @@ function marked(src, opt, callback) {
         if (opt) opt = merge({}, marked.defaults, opt)
         return Parser.parse(Lexer.lex(src, opt), opt)
     } catch (e) {
-        e.message += '\nPlease report this to https://github.com/chjj/marked.';
+        e.message += '\nPlease report this to https://github.com/zeromake/marked-zm';
         if ((opt || marked.defaults).silent) {
             return '<p>An error occured:</p><pre>'
             + escape(e.message + '', true)
@@ -89,11 +89,8 @@ marked.setExtended = function setExtended(opt) {
     }
 }
 marked.use = function use(plugin) {
-    const args = [this].concat(Array.prototype.slice.call(arguments, 1))
-    const opt = plugin.apply(plugin, args)
-    this.setExtended(opt)
-    return this
-};
+    plugin.call(this)
+}
 marked.options = marked.setOptions
 
 marked.defaults = defaults

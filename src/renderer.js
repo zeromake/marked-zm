@@ -1,5 +1,5 @@
 
-import { escape } from './utils'
+const { escape } = require('./utils')
 
 function Renderer(options) {
     this.options = options || {};
