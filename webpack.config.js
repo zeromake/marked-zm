@@ -11,7 +11,7 @@ const config = {
         path: outPath,
         library: "marked",
         filename: isProd? "[name].min.js": "[name].js",
-        libraryTarget: 'umd'
+        libraryTarget: 'umd2'
     },
     devtool: '#source-map',
     resolve: {

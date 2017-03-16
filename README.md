@@ -14,26 +14,20 @@ marked("#ff"/*, {opt}*/)
 ## Simple Extended
 ``` javascript
 marked.use(function(marked) {
-    var reg = / *\$(.*)\$ *\n*$/
+    var reg = /\$(.*)\$/
     var type = 'katex'
     return {
-        type: type,
-        renderer: function(text, renderer) {
+        type,
+        renderer(text, renderer) {
             return 'katex: ' + text
         },
-        regexp: function(src){
-            var cap = reg.exec(src)
-            console.log(cap)
+        inline(state){
+            var cap = reg.exec(state.src)
             if (cap){
-                return {
-                    sublen: cap[0].length,
-                    token:{
-                        type: type,
-                        text: cap[1]
-                    }
-                }
+                state.src = state.src.substring(cap[0].length)
+                state.out += this.renderer.katex(cap[1])
+                return true
             }
-            return null
         }
     }
 })
