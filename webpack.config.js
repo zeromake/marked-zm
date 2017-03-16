@@ -2,6 +2,7 @@ const path = require('path')
 const webpack = require('webpack')
 const srcPath = path.resolve(__dirname, './src')
 const outPath = path.resolve(__dirname, './lib')
+const isProd = process.env.NODE_ENV === 'production'
 const config = {
     entry: {
         marked: path.resolve(srcPath, './marked.js')
@@ -9,7 +10,7 @@ const config = {
     output: {
         path: outPath,
         library: "marked",
-        filename: "[name].js",
+        filename: isProd? "[name].min.js": "[name].js",
         libraryTarget: 'umd'
     },
     devtool: '#source-map',
@@ -43,7 +44,7 @@ const config = {
         ]
     }
 }
-if (process.env.NODE_ENV === 'production') {
+if (isProd) {
     config.devtool = false
     config.plugins.push(
         new webpack.DefinePlugin({
