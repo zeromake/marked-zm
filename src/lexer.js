@@ -53,7 +53,6 @@ Lexer.prototype.token = function token(src, top, bq, offsetStart) {
     this.state.src = src
     this.state.bq = bq
     this.state.offset = offsetStart || 0
-    // console.log('src:', src);
     while (this.state.src) {
         let flag = false
         let i
@@ -78,10 +77,7 @@ Lexer.prototype.token = function token(src, top, bq, offsetStart) {
                 throw new Error('rule is not array or index=1 not is function:', rule)
             }
         }
-        if (flag) {
-            continue
-        }
-        if (this.state.src) {
+        if (!flag && this.state.src) {
             throw new Error('Infinite loop on byte: ' + src.charCodeAt(0))
         }
     }

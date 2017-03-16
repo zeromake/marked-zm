@@ -45,17 +45,20 @@ function marked(src, opt, callback) {
             const token = tokens[i]
             if (token.type !== 'code') {
                 if (!--pending)done()
-                continue
+                // continue
+            } else {
+                highlight(token.text, token.lang, (err, code) => {
+                    if (err) return done(err)
+                    if (code == null || token.text === code) {
+                        return --pending || done()
+                    }
+                    token.text = code
+                    token.escaped = true
+                    if (!--pending)done()
+
+                    return undefined
+                })
             }
-            highlight(token.text, token.lang, (err, code) => {
-                if (err) return done(err)
-                if (code == null || token.text === code) {
-                    return --pending || done()
-                }
-                token.text = code
-                token.escaped = true
-                if (!--pending)done()
-            })
         }
         return null
     }
@@ -76,20 +79,23 @@ marked.setOptions = (opt) => {
     merge(marked.defaults, opt)
     return marked
 }
-marked.setExtended = function setExtended(opt) {
-    const extType = opt.type
-    const renderer = opt.renderer
-    const regexp = opt.regexp
-    if (extType && renderer) {
-        this.Renderer.prototype[extType] = renderer
-    }
-    if (regexp) {
-        this.defaults.extended = marked.defaults.extended || []
-        this.defaults.extended.push(regexp)
-    }
-}
 marked.use = function use(plugin) {
-    plugin.call(this)
+    const pluginConfig = plugin.call(this, this)
+    const { type, block, inline, blocklv, inlinelv, parser, renderer } = pluginConfig
+    if (type) {
+        if (typeof block === 'function') {
+            this.Lexer.block.push([type, block, blocklv || 11])
+        }
+        if (typeof inline === 'function') {
+            this.InlineLexer.rulesInline.push([type, inline, inlinelv || 11])
+        }
+        if (typeof parser === 'function') {
+            this.Parser.tokenParser[type] = parser
+        }
+        if (typeof renderer === 'function') {
+            this.Renderer.prototype[type] = renderer
+        }
+    }
 }
 marked.options = marked.setOptions
 

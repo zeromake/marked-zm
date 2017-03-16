@@ -1,7 +1,8 @@
 const Renderer = require('./renderer')
 const defaults = require('./defaults')
-const { escape } = require('./utils')
+const { escape, sortRules } = require('./utils')
 const inline = require('./inline')
+const rulesInline = require('./rules_inline')
 
 /**
  * Inline Lexer & Compiler
@@ -13,7 +14,7 @@ function InlineLexer(links, options) {
     this.rules = inline.normal
     this.renderer = this.options.renderer || new Renderer()
     this.renderer.options = this.options
-
+    this.rulesInline = sortRules(rulesInline)
     if (!this.links) {
         throw new Error('Tokens array requires a `links` property.')
     }
@@ -31,9 +32,13 @@ function InlineLexer(links, options) {
         links,
         rules: this.rules,
         output: (src) => {
-            const oldsrc = this.state.src
+            const oldState = {
+                src: this.state.src,
+                out: this.state.out
+            }
             const out = this.output(src)
-            this.state.src = oldsrc
+            this.state.src = oldState.src
+            this.state.out = oldState.out
             return out
         }
     }
@@ -44,7 +49,7 @@ function InlineLexer(links, options) {
  */
 
 InlineLexer.rules = inline
-
+InlineLexer.rulesInline = rulesInline
 /**
  * Static Lexing/Compiling Method
  */
@@ -59,150 +64,29 @@ InlineLexer.output = function staticOutput(src, links, options) {
  */
 
 InlineLexer.prototype.output = function output(src) {
-    let out = ''
-    let link
-    let text
-    let href
-    let cap
-
-    while (src) {
-        // newline
-        if (cap = /^\n+/.exec(src)) {
-            src = src.substring(cap[0].length)
-            out += '<br/>'
-        }
-        // emoji
-        if (cap = this.rules.emoji.exec(src)) {
-            src = src.substring(cap[0].length)
-            out += this.renderer.emoji(cap[1])
-        }
-        // icon
-        if (cap = this.rules.icon.exec(src)) {
-            src = src.substring(cap[0].length)
-            out += this.renderer.html(cap[0])
-        }
-        // escape
-        if (cap = this.rules.escape.exec(src)) {
-            src = src.substring(cap[0].length)
-            out += cap[1]
-            continue
-        }
-
-        // autolink
-        if (cap = this.rules.autolink.exec(src)) {
-            src = src.substring(cap[0].length)
-            if (cap[2] === '@') {
-                text = cap[1].charAt(6) === ':' ? this.mangle(cap[1].substring(7)) : this.mangle(cap[1]);
-                href = this.mangle('mailto:') + text
+    this.state.src = src
+    this.state.out = ''
+    while (this.state.src) {
+        let flag = false
+        let i
+        for (i = 0; i < this.rulesInline.length; i++) {
+            const rule = this.rulesInline[i]
+            if (rule && rule.length > 1 && typeof rule[1] === 'function') {
+                const tok = rule[1].call(this, this.state)
+                if (tok && tok !== -1) {
+                    flag = true
+                    break
+                }
             } else {
-                text = escape(cap[1])
-                href = text
+                throw new Error('rule is not array or index=1 not is function:', rule)
             }
-            out += this.renderer.link(href, null, text)
-            continue
         }
-
-        // url (gfm)
-        if (!this.inLink && (cap = this.rules.url.exec(src))) {
-            src = src.substring(cap[0].length)
-            text = escape(cap[1])
-            href = text
-            out += this.renderer.link(href, null, text)
-            continue
-        }
-
-        // tag
-        if (cap = this.rules.tag.exec(src)) {
-            if (!this.inLink && /^<a /i.test(cap[0])) {
-                this.inLink = true
-            } else if (this.inLink && /^<\/a>/i.test(cap[0])) {
-                this.inLink = false
-            }
-            src = src.substring(cap[0].length)
-            let addOut = this.options.sanitize && this.options.sanitizer ?
-            this.options.sanitizer(cap[0]) : escape(cap[0])
-
-            addOut = this.options.sanitize ? addOut : cap[0]
-            out += addOut
-            continue
-        }
-
-        // link
-        if (cap = this.rules.link.exec(src)) {
-            src = src.substring(cap[0].length)
-            this.inLink = true
-            out += this.outputLink(cap, {
-                href: cap[2],
-                title: cap[3],
-            })
-            this.inLink = false
-            continue
-        }
-
-        // reflink, nolink
-        if ((cap = this.rules.reflink.exec(src)) || (cap = this.rules.nolink.exec(src))) {
-            src = src.substring(cap[0].length)
-            link = (cap[2] || cap[1]).replace(/\s+/g, ' ')
-            link = this.links[link.toLowerCase()]
-            if (!link || !link.href) {
-                out += cap[0].charAt(0)
-                src = cap[0].substring(1) + src
-                continue
-            }
-            this.inLink = true
-            out += this.outputLink(cap, link)
-            this.inLink = false
-            continue
-        }
-
-        // strong
-        if (cap = this.rules.strong.exec(src)) {
-            src = src.substring(cap[0].length)
-            out += this.renderer.strong(this.output(cap[2] || cap[1]))
-            continue
-        }
-
-        // em
-        if (cap = this.rules.em.exec(src)) {
-            src = src.substring(cap[0].length)
-            out += this.renderer.em(this.output(cap[2] || cap[1]))
-            continue
-        }
-
-        // code
-        if (cap = this.rules.code.exec(src)) {
-            src = src.substring(cap[0].length)
-            out += this.renderer.codespan(escape(cap[2], true))
-            continue
-        }
-
-        // br
-        if (cap = this.rules.br.exec(src)) {
-            src = src.substring(cap[0].length)
-            out += this.renderer.br()
-            continue
-        }
-
-        // del (gfm)
-        if (cap = this.rules.del.exec(src)) {
-            src = src.substring(cap[0].length)
-            out += this.renderer.del(this.output(cap[1]))
-            continue
-        }
-        // text
-        if (cap = this.rules.text.exec(src)) {
-            src = src.substring(cap[0].length)
-            out += this.renderer.text(escape(this.smartypants(cap[0])))
-            continue
-        }
-
-        if (src) {
-            throw new
-            Error('Infinite loop on byte: ' + src.charCodeAt(0))
+        if (!flag && this.state.src) {
+            throw new Error('Infinite loop on byte: ' + src.charCodeAt(0))
         }
     }
 
-    return out
+    return this.state.out
 };
 
 /**

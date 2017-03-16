@@ -131,6 +131,7 @@ Renderer.prototype.del = function del(text) {
 }
 
 Renderer.prototype.link = function link(href, title, text) {
+    const jsStr = 'javascript:'
     if (this.options.sanitize) {
         let prot
         try {
@@ -140,7 +141,7 @@ Renderer.prototype.link = function link(href, title, text) {
         } catch (e) {
             return ''
         }
-        if (prot.indexOf('javascript:') === 0 ||
+        if (prot.indexOf(jsStr) === 0 ||
             prot.indexOf('vbscript:') === 0 ||
             prot.indexOf('data:') === 0) {
             return ''

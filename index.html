@@ -73,10 +73,6 @@
                 return hljs.highlightAuto(code).value;
             }
         })*/
-        marked.use(function() {
-            this.Lexer.block.push(['test', function(state){
-            }, 131])
-        })
         if (!Array.prototype.forEach){
             Array.prototype.forEach = function (fn) {
                 for (var i = 0, len=this.length; i < len; i++) {
