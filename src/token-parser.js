@@ -138,8 +138,8 @@ const tokenParser = {
             last -= 1
             body.push('</li></ul>')
         }
-        body[0] = '<ul class="toc-tree">'
-        return env.renderer.toc(body.join('\n'))
+
+        return env.renderer.toc(body)
     }
 }
 module.exports = tokenParser

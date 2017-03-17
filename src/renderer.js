@@ -171,8 +171,9 @@ Renderer.prototype.blank = function renText(text) {
     return text
 }
 Renderer.prototype.toc = function renToc(items) {
+    items[0] = '<ul class="toc-tree">'
     const html = '<div class="toc">'
-    + items
+    + items.join('\n')
     + '</div>'
     return html
 }
