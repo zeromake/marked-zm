@@ -14,7 +14,7 @@ const inline = {
     br: /^ {2,}\n(?!\s*$)/,
     del: noop,
     text: /^[\s\S]+?(?=[\\<![_*`$:]|\n|$)/, // $ katex : emoji
-    icon: /^ *<(i)[\s\S]+?<\/\1> */
+    html: /^ *(?:comment|closed|closing)/
 }
 
 inline._inside = /(?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*/
@@ -27,6 +27,18 @@ inline.link = replace(inline.link)
 
 inline.reflink = replace(inline.reflink)
     ('inside', inline._inside)
+    ()
+
+const _tag = '(?!(?:'
+    + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
+    + '|var|samp|sub|sup|b|u|mark|ruby|rt|rp|bdi|bdo'
+    + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b'
+
+inline.html = replace(inline.html)
+    ('comment', /<!--[\s\S]*?-->/)
+    ('closed', /<(tag)[\s\S]+?<\/\1>/)
+    ('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
+    (/tag/g, _tag)
     ()
 
 /**
@@ -64,50 +76,5 @@ inline.breaks = merge({}, inline.gfm, {
     br: replace(inline.br)('{2,}', '*')(),
     text: replace(inline.gfm.text)('{2,}', '*')(),
 })
-
-/* handle = {
-    emoji: function emojiHandle(cap) {
-
-    },
-    escape: function escapeHandle() {
-
-    },
-    autolink: function autolinkHandle() {
-
-    },
-    url: function urlHandle() {
-
-    },
-    tag: function tagHandle() {
-
-    },
-    link: function linkHandle() {
-
-    },
-    reflink: function reflinkHandle() {
-
-    },
-    nolink: function nolinkHandle() {
-
-    },
-    strong: function strongHandle() {
-
-    },
-    em: function emHandle() {
-
-    },
-    code: function codeHandle() {
-
-    },
-    br: function brHandle() {
-
-    },
-    del: function delHandle() {
-
-    },
-    text: function textHandle() {
-
-    }
-} */
 
 module.exports = inline

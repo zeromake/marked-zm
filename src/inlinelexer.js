@@ -1,6 +1,6 @@
 const Renderer = require('./renderer')
 const defaults = require('./defaults')
-const { escape, sortRules } = require('./utils')
+const { zescape, sortRules } = require('./utils')
 const inline = require('./inline')
 const rulesInline = require('./rules_inline')
 
@@ -28,7 +28,7 @@ function InlineLexer(links, options) {
     } else if (this.options.pedantic) {
         this.rules = inline.pedantic
     }
-    this.state = {
+    /* this.state = {
         links,
         rules: this.rules,
         output: (src) => {
@@ -41,7 +41,7 @@ function InlineLexer(links, options) {
             this.state.out = oldState.out
             return out
         }
-    }
+    } */
 }
 
 /**
@@ -64,16 +64,21 @@ InlineLexer.output = function staticOutput(src, links, options) {
  */
 
 InlineLexer.prototype.output = function output(src) {
-    this.state.src = src
-    this.state.out = ''
-    while (this.state.src) {
+    // this.state.src = src
+    // this.state.out = ''
+    const state = {
+        src,
+        out: ''
+    }
+    const rulesInlineLen = this.rulesInline.length
+    while (state.src) {
         let flag = false
         let i
-        for (i = 0; i < this.rulesInline.length; i++) {
+        for (i = 0; i < rulesInlineLen; i += 1) {
             const rule = this.rulesInline[i]
             if (rule && rule.length > 1 && typeof rule[1] === 'function') {
-                const tok = rule[1].call(this, this.state)
-                if (tok && tok !== -1) {
+                const tok = rule[1].call(this, state, this)
+                if (tok) {
                     flag = true
                     break
                 }
@@ -81,12 +86,12 @@ InlineLexer.prototype.output = function output(src) {
                 throw new Error('rule is not array or index=1 not is function:', rule)
             }
         }
-        if (!flag && this.state.src) {
+        if (!flag && state.src) {
             throw new Error('Infinite loop on byte: ' + src.charCodeAt(0))
         }
     }
 
-    return this.state.out
+    return state.out
 };
 
 /**
@@ -94,10 +99,12 @@ InlineLexer.prototype.output = function output(src) {
  */
 
 InlineLexer.prototype.outputLink = function outputLink(cap, link) {
-    const href = escape(link.href)
-    const title = link.title ? escape(link.title) : null
+    const href = zescape(link.href)
+    const title = link.title ? zescape(link.title) : null
 
-    return cap[0].charAt(0) !== '!' ? this.renderer.link(href, title, this.output(cap[1])) : this.renderer.image(href, title, escape(cap[1]))
+    return cap[0].charAt(0) !== '!'
+    ? this.renderer.link(href, title, this.output(cap[1]))
+    : this.renderer.image(href, title, zescape(cap[1]))
 };
 
 /**
@@ -134,7 +141,7 @@ InlineLexer.prototype.mangle = function mangle(text) {
     let i = 0
     let ch
 
-    for (; i < l; i++) {
+    for (; i < l; i += 1) {
         ch = text.charCodeAt(i);
         if (Math.random() > 0.5) {
             ch = 'x' + ch.toString(16)

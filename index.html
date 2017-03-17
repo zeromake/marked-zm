@@ -42,21 +42,6 @@
             outline-width: 0px;
             text-align: justif;
         }
-        .toc-level-2{
-            margin-left: 14px;
-        }
-        .toc-level-3{
-            margin-left: 28px;
-        }
-        .toc-level-4{
-            margin-left: 42px;
-        }
-        .toc-level-5{
-            margin-left: 56px;
-        }
-        .toc-level-6{
-            margin-left: 70px;
-        }
         code{
             color: #c7254e;
         }
@@ -73,13 +58,6 @@
                 return hljs.highlightAuto(code).value;
             }
         })*/
-        if (!Array.prototype.forEach){
-            Array.prototype.forEach = function (fn) {
-                for (var i = 0, len=this.length; i < len; i++) {
-                    fn(this[i], i)
-                }
-            }
-        }
         if (document.addEventListener){
             document.addEventListener("DOMContentLoaded", function Loaded(){
                 document.getElementById('myEditor').addEventListener("input", function(){

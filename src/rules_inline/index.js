@@ -1,4 +1,4 @@
-const { escape } = require('../utils')
+const { zescape } = require('../utils')
 
 function newline(state) {
     const cap = /^\n+/.exec(state.src)
@@ -7,187 +7,187 @@ function newline(state) {
         state.out += '<br/>'
         return 1
     }
-    return -1
+    return false
 }
 
-function emoji(state) {
-    const cap = state.rules.emoji.exec(state.src)
+function emoji(state, env) {
+    const cap = env.rules.emoji.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
-        state.out += this.renderer.emoji(cap[1])
+        state.out += env.renderer.emoji(cap[1])
         return 1
     }
-    return -1
+    return false
 }
 
-function icon(state) {
-    const cap = state.rules.icon.exec(state.src)
+function html(state, env) {
+    const cap = env.rules.html.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
-        state.out += this.renderer.html(cap[0])
+        state.out += env.renderer.html(cap[0])
         return 1
     }
-    return -1
+    return false
 }
 
-function ruleEscape(state) {
-    const cap = state.rules.escape.exec(state.src)
+function ruleEscape(state, env) {
+    const cap = env.rules.escape.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
         state.out += cap[1]
         return 1
     }
-    return -1
+    return false
 }
 
-function autolink(state) {
-    const cap = state.rules.autolink.exec(state.src)
+function autolink(state, env) {
+    const cap = env.rules.autolink.exec(state.src)
     if (cap) {
         let texts
         let href
         state.src = state.src.substring(cap[0].length)
         if (cap[2] === '@') {
-            texts = cap[1].charAt(6) === ':' ? this.mangle(cap[1].substring(7)) : this.mangle(cap[1]);
-            href = this.mangle('mailto:') + texts
+            texts = cap[1].charAt(6) === ':' ? env.mangle(cap[1].substring(7)) : env.mangle(cap[1])
+            href = env.mangle('mailto:') + texts
         } else {
-            texts = escape(cap[1])
+            texts = zescape(cap[1])
             href = texts
         }
-        state.out += this.renderer.link(href, null, texts)
+        state.out += env.renderer.link(href, null, texts)
         return 1
     }
-    return -1
+    return false
 }
 
-function url(state) {
-    const cap = state.rules.url.exec(state.src)
-    if (!state.inLink && cap) {
+function url(state, env) {
+    const cap = env.rules.url.exec(state.src)
+    if (!env.inLink && cap) {
         state.src = state.src.substring(cap[0].length)
-        const texts = escape(cap[1])
+        const texts = zescape(cap[1])
         const href = texts
-        state.out += this.renderer.link(href, null, texts)
+        state.out += env.renderer.link(href, null, texts)
         return 1
     }
-    return -1
+    return false
 }
 
-function tag(state) {
-    const cap = state.rules.tag.exec(state.src)
+function tag(state, env) {
+    const cap = env.rules.tag.exec(state.src)
     if (cap) {
-        if (!state.inLink && /^<a /i.test(cap[0])) {
-            state.inLink = true
-        } else if (state.inLink && /^<\/a>/i.test(cap[0])) {
-            state.inLink = false
+        if (!env.inLink && /^<a /i.test(cap[0])) {
+            env.inLink = true
+        } else if (env.inLink && /^<\/a>/i.test(cap[0])) {
+            env.inLink = false
         }
         state.src = state.src.substring(cap[0].length)
-        let addOut = this.options.sanitize && this.options.sanitizer ?
-        this.options.sanitizer(cap[0]) : escape(cap[0])
-        addOut = this.options.sanitize ? addOut : cap[0]
+        let addOut = env.options.sanitize && env.options.sanitizer ?
+        env.options.sanitizer(cap[0]) : zescape(cap[0])
+        addOut = env.options.sanitize ? addOut : cap[0]
         state.out += addOut
         return 1
     }
-    return -1
+    return false
 }
 
-function link(state) {
-    const cap = state.rules.link.exec(state.src)
+function link(state, env) {
+    const cap = env.rules.link.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
-        state.inLink = true
-        state.out += this.outputLink(cap, {
+        env.inLink = true
+        state.out += env.outputLink(cap, {
             href: cap[2],
             title: cap[3],
         })
-        state.inLink = false
+        env.inLink = false
         return 1
     }
-    return -1
+    return false
 }
 
-function refnolink(state) {
-    const cap = state.rules.reflink.exec(state.src) || state.rules.nolink.exec(state.src)
+function refnolink(state, env) {
+    const cap = env.rules.reflink.exec(state.src) || env.rules.nolink.exec(state.src)
     if (cap) {
         let linkObj
         state.src = state.src.substring(cap[0].length)
         linkObj = (cap[2] || cap[1]).replace(/\s+/g, ' ')
-        linkObj = this.links[linkObj.toLowerCase()]
+        linkObj = env.links[linkObj.toLowerCase()]
         if (!linkObj || !linkObj.href) {
             state.out += cap[0].charAt(0)
             state.src = cap[0].substring(1) + state.src
             return 1
         }
-        state.inLink = true
-        state.out += this.outputLink(cap, linkObj)
-        state.inLink = false
+        env.inLink = true
+        state.out += env.outputLink(cap, linkObj)
+        env.inLink = false
         return 1
     }
-    return -1
+    return false
 }
 
-function strong(state) {
-    const cap = state.rules.strong.exec(state.src)
+function strong(state, env) {
+    const cap = env.rules.strong.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
-        state.out += this.renderer.strong(state.output(cap[2] || cap[1]))
+        state.out += env.renderer.strong(env.output(cap[2] || cap[1]))
         return 1
     }
-    return -1
+    return false
 }
 
-function em(state) {
-    const cap = state.rules.em.exec(state.src)
+function em(state, env) {
+    const cap = env.rules.em.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
-        state.out += this.renderer.em(state.output(cap[2] || cap[1]))
+        state.out += env.renderer.em(env.output(cap[2] || cap[1]))
         return 1
     }
-    return -1
+    return false
 }
 
-function code(state) {
-    const cap = state.rules.code.exec(state.src)
+function code(state, env) {
+    const cap = env.rules.code.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
-        state.out += this.renderer.codespan(escape(cap[2], true))
+        state.out += this.renderer.codespan(zescape(cap[2], true))
         return 1
     }
-    return -1
+    return false
 }
 
-function br(state) {
-    const cap = state.rules.br.exec(state.src)
+function br(state, env) {
+    const cap = env.rules.br.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
-        state.out += this.renderer.br()
+        state.out += env.renderer.br()
         return 1
     }
-    return -1
+    return false
 }
 
-function del(state) {
-    const cap = state.rules.del.exec(state.src)
+function del(state, env) {
+    const cap = env.rules.del.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
-        state.out += this.renderer.del(state.output(cap[1]))
+        state.out += env.renderer.del(env.output(cap[1]))
         return 1
     }
-    return -1
+    return false
 }
 
-function text(state) {
-    const cap = state.rules.text.exec(state.src)
+function text(state, env) {
+    const cap = env.rules.text.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
-        state.out += this.renderer.text(escape(this.smartypants(cap[0])))
+        state.out += env.renderer.text(zescape(env.smartypants(cap[0])))
         return 1
     }
-    return -1
+    return false
 }
 
 const _rules = [
     ['newline', newline, 10],
     ['emoji', emoji, 20],
-    ['icon', icon, 30],
+    ['html', html, 30],
     ['escape', ruleEscape, 40],
     ['autolink', autolink, 50],
     ['url', url, 60],

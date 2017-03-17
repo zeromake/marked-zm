@@ -1,5 +1,5 @@
-module.exports = function lheading(state) {
-    const cap = state.rules.lheading.exec(state.src)
+module.exports = function lheading(state, env) {
+    const cap = env.rules.lheading.exec(state.src)
     if (cap) {
         const offsetLen = cap[0].length
         const offsetEnd = state.offset + offsetLen
@@ -11,8 +11,8 @@ module.exports = function lheading(state) {
             start: state.offset,
             end: offsetEnd
         }
-        state.tokens.push(headToken)
-        state.tocs.push(headToken)
+        env.tokens.push(headToken)
+        env.tocs.push(headToken)
         state.offset = offsetEnd
         return true
     }

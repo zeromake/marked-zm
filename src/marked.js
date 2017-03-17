@@ -1,4 +1,4 @@
-const { merge, escape } = require('./utils')
+const { merge, zescape } = require('./utils')
 const Lexer = require('./lexer')
 const Parser = require('./parser')
 const Renderer = require('./renderer')
@@ -41,23 +41,28 @@ function marked(src, opt, callback) {
         }
         delete opt.highlight
         if (!pending) return done()
-        for (; i < tokens.length; i++) {
+
+        const highlightHandle = function highlightHandle(token) {
+            return (err, code) => {
+                if (err) return done(err)
+                if (code == null || token.text === code) {
+                    return (pending -= 1) || done()
+                }
+                token.text = code
+                token.escaped = true
+                pending -= 1
+                if (!pending)done()
+
+                return undefined
+            }
+        }
+        for (; i < tokens.length; i += 1) {
             const token = tokens[i]
             if (token.type !== 'code') {
-                if (!--pending)done()
-                // continue
+                pending -= 1
+                if (!pending)done()
             } else {
-                highlight(token.text, token.lang, (err, code) => {
-                    if (err) return done(err)
-                    if (code == null || token.text === code) {
-                        return --pending || done()
-                    }
-                    token.text = code
-                    token.escaped = true
-                    if (!--pending)done()
-
-                    return undefined
-                })
+                highlight(token.text, token.lang, highlightHandle(token))
             }
         }
         return null
@@ -69,7 +74,7 @@ function marked(src, opt, callback) {
         e.message += '\nPlease report this to https://github.com/zeromake/marked-zm';
         if ((opt || marked.defaults).silent) {
             return '<p>An error occured:</p><pre>'
-            + escape(e.message + '', true)
+            + zescape(e.message + '', true)
             + '</pre>';
         }
         throw e;

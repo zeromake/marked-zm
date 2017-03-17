@@ -1,5 +1,5 @@
 
-const { escape } = require('./utils')
+const { zescape } = require('./utils')
 
 function Renderer(options) {
     this.options = options || {};
@@ -16,14 +16,14 @@ Renderer.prototype.code = function renCode(code, lang, escaped) {
 
     if (!lang) {
         return '<pre><code>'
-        + (escaped ? code : escape(code, true))
+        + (escaped ? code : zescape(code, true))
         + '\n</code></pre>'
     }
     return '<pre><code class="'
     + this.options.langPrefix
-    + escape(lang, true)
+    + zescape(lang, true)
     + '">'
-    + (escaped ? code : escape(code, true))
+    + (escaped ? code : zescape(code, true))
     + '\n</code></pre>\n'
 }
 
@@ -40,9 +40,9 @@ Renderer.prototype.heading = function heading(text, level) {
     return '<h'
     + level
     + '><a class="anchor" name="'
-    + escape(escapedText)
+    + zescape(escapedText)
     + '" href="#'
-    + escape(escapedText)
+    + zescape(escapedText)
     + '"><svg aria-hidden="true" class="octicon octicon-link" height="16"'
     + ' version="1.1" viewBox="0 0 16 16" width="16">'
     + '<path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55'
@@ -131,7 +131,7 @@ Renderer.prototype.del = function del(text) {
 }
 
 Renderer.prototype.link = function link(href, title, text) {
-    const jsStr = 'javascript:'
+    const jsStr = 'javascript'
     if (this.options.sanitize) {
         let prot
         try {
@@ -141,7 +141,7 @@ Renderer.prototype.link = function link(href, title, text) {
         } catch (e) {
             return ''
         }
-        if (prot.indexOf(jsStr) === 0 ||
+        if (prot.indexOf(jsStr + ':') === 0 ||
             prot.indexOf('vbscript:') === 0 ||
             prot.indexOf('data:') === 0) {
             return ''
@@ -171,22 +171,25 @@ Renderer.prototype.blank = function renText(text) {
     return text
 }
 Renderer.prototype.toc = function renToc(items) {
-    const html = '<div class="toc"><ul class="toc-tree">'
+    const html = '<div class="toc">'
     + items
-    + '</ul></div>'
+    + '</div>'
     return html
 }
 Renderer.prototype.tocItem = function tocItem(id, level, text) {
+    if (!id && !text && level) {
+        return '<li class="toc-item toc-level-' + level + '">'
+    }
     return '<li class="toc-item toc-level-'
         + level
         + '"><a class="toc-link" href="#'
-        + escape(id)
+        + zescape(id)
         + '"><span class="toc-number"></span><span class="toc-text">'
         + text
-        + '</span></a></li>'
+        + '</span></a>'
 }
 Renderer.prototype.emoji = function emoji(emojiName) {
-    const title = ':' + escape(emojiName) + ':'
+    const title = ':' + zescape(emojiName) + ':'
     return '<img src="https://cdn.bootcss.com/emojify.js/1.0/images/basic/'
         + encodeURIComponent(emojiName)
         + '.png" alt="'

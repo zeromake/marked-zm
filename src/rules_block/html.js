@@ -1,13 +1,13 @@
-module.exports = function html(state) {
-    const cap = state.rules.html.exec(state.src)
+module.exports = function html(state, env) {
+    const cap = env.rules.html.exec(state.src)
     if (cap) {
         const offsetLen = cap[0].length
         const offsetEnd = state.offset + offsetLen
         const offsetStart = state.offset
         state.src = state.src.substring(offsetLen)
-        state.tokens.push({
-            type: this.options.sanitize ? 'paragraph' : 'html',
-            pre: !this.options.sanitizer && (
+        env.tokens.push({
+            type: env.options.sanitize ? 'paragraph' : 'html',
+            pre: !env.options.sanitizer && (
                 cap[1] === 'pre'
                 || cap[1] === 'script'
                 || cap[1] === 'style'

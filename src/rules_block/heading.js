@@ -1,5 +1,5 @@
-module.exports = function heading(state) {
-    const cap = state.rules.heading.exec(state.src)
+module.exports = function heading(state, env) {
+    const cap = env.rules.heading.exec(state.src)
     if (cap) {
         const offsetLen = cap[0].length
         const offsetEnd = state.offset + offsetLen
@@ -11,8 +11,8 @@ module.exports = function heading(state) {
             start: state.offset,
             end: offsetEnd
         }
-        state.tocs.push(headToken)
-        state.tokens.push(headToken)
+        env.tocs.push(headToken)
+        env.tokens.push(headToken)
         state.offset = offsetEnd
         return true
     }

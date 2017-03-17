@@ -28,16 +28,16 @@ Parser.parse = function staticParse(param, options, renderer) {
 
 Parser.prototype.parse = function parse(state) {
     const src = state.tokens
-    const tocs = state.tocs
+    this.tocs = state.tocs
     this.inline = new InlineLexer(state.links, this.options, this.renderer)
-    const tocItems = []
+    /* const tocItems = []
     const tocLen = tocs.length
-    for (let i = 0; i < tocLen; i++) {
+    for (let i = 0; i < tocLen; i += 1) {
         const token = tocs[i]
         const id = token.text.toLowerCase()
         tocItems.push(this.renderer.tocItem(id, token.depth, token.text))
     }
-    this.tocHTML = this.renderer.toc(tocItems.join('\n'))
+    this.tocHTML = this.renderer.toc(tocItems.join('\n')) */
     this.tokens = src.reverse()
     let parseOut = ''
     while (this.next()) {
@@ -84,13 +84,13 @@ Parser.prototype.parseText = function parseText() {
 Parser.prototype.tok = function parTok() {
     const tokenFun = this.tokenParser[this.token.type]
     if (typeof tokenFun === 'function') {
-        return tokenFun.call(this)
+        return tokenFun.call(null, this)
     }
     const renderer = this.renderer[this.token.type]
     if (typeof renderer === 'function') {
         return renderer.call(this.renderer, this.token, this)
     }
-    return ''
+    return this.token.text
 }
 
 module.exports = Parser

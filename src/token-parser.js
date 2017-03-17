@@ -2,23 +2,23 @@ const tokenParser = {
     space() {
         return ''
     },
-    hr() {
-        return this.renderer.hr()
+    hr(env) {
+        return env.renderer.hr()
     },
-    heading() {
-        return this.renderer.heading(
-            this.inline.output(this.token.text),
-            this.token.depth,
-            this.token.text
+    heading(env) {
+        return env.renderer.heading(
+            env.inline.output(env.token.text),
+            env.token.depth,
+            env.token.text
         )
     },
-    code() {
-        return this.renderer.code(this.token.text,
-            this.token.lang,
-            this.token.escaped
+    code(env) {
+        return env.renderer.code(env.token.text,
+            env.token.lang,
+            env.token.escaped
         )
     },
-    table() {
+    table(env) {
         let header = ''
         let body = ''
         let i
@@ -27,80 +27,119 @@ const tokenParser = {
         let j
 
         // header
-        for (i = 0; i < this.token.header.length; i++) {
-            cell += this.renderer.tablecell(
-                this.inline.output(this.token.header[i]), {
+        for (i = 0; i < env.token.header.length; i += 1) {
+            cell += env.renderer.tablecell(
+                env.inline.output(env.token.header[i]), {
                     header: true,
-                    align: this.token.align[i]
+                    align: env.token.align[i]
                 }
             )
         }
-        header += this.renderer.tablerow(cell);
+        header += env.renderer.tablerow(cell);
 
-        for (i = 0; i < this.token.cells.length; i++) {
-            row = this.token.cells[i]
+        for (i = 0; i < env.token.cells.length; i += 1) {
+            row = env.token.cells[i]
 
             cell = ''
-            for (j = 0; j < row.length; j++) {
-                cell += this.renderer.tablecell(
-                    this.inline.output(row[j]), {
+            for (j = 0; j < row.length; j += 1) {
+                cell += env.renderer.tablecell(
+                    env.inline.output(row[j]), {
                         header: false,
-                        align: this.token.align[j]
+                        align: env.token.align[j]
                     }
                 )
             }
 
-            body += this.renderer.tablerow(cell)
+            body += env.renderer.tablerow(cell)
         }
-        return this.renderer.table(header, body)
+        return env.renderer.table(header, body)
     },
-    blockquote_start() {
+    blockquote_start(env) {
         let body = ''
-        while (this.next().type !== 'blockquote_end') {
-            body += this.tok()
+        while (env.next().type !== 'blockquote_end') {
+            body += env.tok()
         }
-        return this.renderer.blockquote(body)
+        return env.renderer.blockquote(body)
     },
-    list_start() {
+    list_start(env) {
         let body = ''
-        const ordered = this.token.ordered
-        const isChecked = this.token.checked
-        while (this.next().type !== 'list_end') {
-            body += this.tok()
+        const ordered = env.token.ordered
+        const isChecked = env.token.checked
+        while (env.next().type !== 'list_end') {
+            body += env.tok()
         }
-        return this.renderer.list(body, ordered, isChecked)
+        return env.renderer.list(body, ordered, isChecked)
     },
-    list_item_start() {
+    list_item_start(env) {
         let body = ''
-        const isChecked = this.token.checked
-        while (this.next().type !== 'list_item_end') {
-            body += this.token.type === 'text' ? this.parseText() : this.tok()
+        const isChecked = env.token.checked
+        while (env.next().type !== 'list_item_end') {
+            body += env.token.type === 'text' ? env.parseText() : env.tok()
         }
 
-        return this.renderer.listitem(body, isChecked)
+        return env.renderer.listitem(body, isChecked)
     },
-    loose_item_start() {
+    loose_item_start(env) {
         let body = ''
-        const isChecked = this.token.checked
-        while (this.next().type !== 'list_item_end') {
-            body += this.tok()
+        const isChecked = env.token.checked
+        while (env.next().type !== 'list_item_end') {
+            body += env.tok()
         }
 
-        return this.renderer.listitem(body, isChecked)
+        return env.renderer.listitem(body, isChecked)
     },
-    html() {
-        const html = !this.token.pre && !this.options.pedantic ?
-            this.inline.output(this.token.text) : this.token.text
-        return this.renderer.html(html)
+    html(env) {
+        const html = !env.token.pre && !env.options.pedantic ?
+            env.inline.output(env.token.text) : env.token.text
+        return env.renderer.html(html)
     },
-    paragraph() {
-        return this.renderer.paragraph(this.inline.output(this.token.text))
+    paragraph(env) {
+        return env.renderer.paragraph(env.inline.output(env.token.text))
     },
-    text() {
-        return this.renderer.paragraph(this.parseText())
+    text(env) {
+        return env.renderer.paragraph(env.parseText())
     },
-    toc() {
-        return this.tocHTML
+    toc(env) {
+        let i
+        const len = env.tocs.length
+        if (len === 0) {
+            return ''
+        }
+        let last = 0
+        const body = []
+        for (i = 0; i < len; i += 1) {
+            const tocItem = env.tocs[i]
+            const id = tocItem.text.toLowerCase()
+            const texts = env.inline.output(tocItem.text)
+            const renText = env.renderer.tocItem(id, tocItem.depth, texts)
+            let offset = tocItem.depth - last
+            if (offset >= 1) {
+                let j = 1
+                while (j < offset) {
+                    body.push(
+                        '<ul>',
+                        env.renderer.tocItem(null, last + j)
+                    )
+                    j += 1
+                }
+                body.push('<ul>', renText)
+            } else if (offset === 0) {
+                body.push('</li>', renText)
+            } else if (offset < 0) {
+                while (offset < 0) {
+                    offset += 1
+                    body.push('</li></ul>')
+                }
+                body.push(renText)
+            }
+            last = tocItem.depth
+        }
+        while (last) {
+            last -= 1
+            body.push('</li></ul>')
+        }
+        body[0] = '<ul class="toc-tree">'
+        return env.renderer.toc(body.join('\n'))
     }
 }
 module.exports = tokenParser

@@ -1,16 +1,16 @@
 const block = require('../block')
 
-module.exports = function list(state) {
-    let cap = state.rules.list.exec(state.src)
+module.exports = function list(state, env) {
+    let cap = env.rules.list.exec(state.src)
     if (cap) {
-        const isChecked = state.rules.checkedlist.test(state.src)
+        const isChecked = env.rules.checkedlist.test(state.src)
         const offsetLen = cap[0].length
         const offsetEnd = state.offset + offsetLen
         const offsetStart = state.offset
         let checked
         state.src = state.src.substring(offsetLen)
         const bull = cap[2]
-        state.tokens.push({
+        env.tokens.push({
             type: 'list_start',
             ordered: bull.length > 1,
             checked: isChecked,
@@ -19,14 +19,14 @@ module.exports = function list(state) {
         })
 
         // Get each top-level item.
-        cap = cap[0].match(isChecked ? state.rules.checkeditem : state.rules.item)
+        cap = cap[0].match(isChecked ? env.rules.checkeditem : env.rules.item)
 
         let next = false
         const l = cap.length
         let i = 0
         let itemOffsetStart = offsetStart
         let itemOffsetEnd
-        for (; i < l; i++) {
+        for (; i < l; i += 1) {
             let item = cap[i]
             // Remove the list item's bullet
             // so it is seen as the next token.
@@ -44,12 +44,12 @@ module.exports = function list(state) {
             // list item contains. Hacky.
             if (~item.indexOf('\n ')) {
                 space -= item.length;
-                item = !this.options.pedantic ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '') : item.replace(/^ {1,4}/gm, '');
+                item = !env.options.pedantic ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '') : item.replace(/^ {1,4}/gm, '');
             }
 
             // Determine whether the next list item belongs here.
             // Backpedal if it does not belong in this list.
-            if (this.options.smartLists && i !== l - 1) {
+            if (env.options.smartLists && i !== l - 1) {
                 const b = block.bullet.exec(cap[i + 1])[0]
                 if (bull !== b && !(bull.length > 1 && b.length > 1)) {
                     state.src = cap.slice(i + 1).join('\n') + state.src
@@ -66,22 +66,22 @@ module.exports = function list(state) {
                 if (!loose) loose = next
             }
 
-            state.tokens.push({
+            env.tokens.push({
                 type: loose ? 'loose_item_start' : 'list_item_start',
                 checked,
                 start: itemOffsetStart,
                 end: itemOffsetEnd
             })
             // Recurse.
-            state.token(item, false, state.bq, itemOffsetStart)
+            env.token(item, false, state.bq, itemOffsetStart)
 
-            state.tokens.push({
-                type: 'list_item_end',
+            env.tokens.push({
+                type: 'list_item_end'
             })
             itemOffsetStart = itemOffsetEnd
         }
-        state.tokens.push({
-            type: 'list_end',
+        env.tokens.push({
+            type: 'list_end'
         })
         state.offset = offsetEnd
         return true

@@ -16,7 +16,7 @@ const block = {
     table: noop,
     paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
     text: /^[^\n]+/,
-    toc: /^ *\[TOC\](\n|$)/,
+    toc: /^ *\[(TOC|toc)\](\n|$)/,
     checkedlist: /^( *)(bull) +\[( *|x)\] [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n|\s*$)/
 }
 block.bullet = /(?:[*+-]|\d+\.)/

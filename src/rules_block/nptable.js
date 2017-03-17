@@ -1,5 +1,5 @@
-module.exports = function nptable(state) {
-    const cap = state.rules.nptable.exec(state.src)
+module.exports = function nptable(state, env) {
+    const cap = env.rules.nptable.exec(state.src)
     if (state.top && cap) {
         const offsetLen = cap[0].length
         const offsetEnd = state.offset + offsetLen
@@ -15,7 +15,7 @@ module.exports = function nptable(state) {
             end: offsetEnd
         }
 
-        for (i = 0; i < item.align.length; i++) {
+        for (i = 0; i < item.align.length; i += 1) {
             if (/^ *-+: *$/.test(item.align[i])) {
                 item.align[i] = 'right'
             } else if (/^ *:-+: *$/.test(item.align[i])) {
@@ -27,11 +27,11 @@ module.exports = function nptable(state) {
             }
         }
 
-        for (i = 0; i < item.cells.length; i++) {
+        for (i = 0; i < item.cells.length; i += 1) {
             item.cells[i] = item.cells[i].split(/ *\| */)
         }
 
-        state.tokens.push(item)
+        env.tokens.push(item)
         state.offset = offsetEnd
 
         return true

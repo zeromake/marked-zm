@@ -1,10 +1,11 @@
-const merge = function merge(obj) {
+const merge = function merge(...args) {
+    const obj = args[0]
     let target
     let key
     let i = 1
-    const len = arguments.length
-    for (; i < len; i++) {
-        target = arguments[i]
+    const len = args.length
+    for (; i < len; i += 1) {
+        target = args[i]
         for (key in target) {
             if (Object.prototype.hasOwnProperty.call(target, key)) {
                 obj[key] = target[key]
@@ -13,13 +14,13 @@ const merge = function merge(obj) {
     }
     return obj
 }
-const escape = function escape(html, encode) {
+const zescape = function zescape(html, encode) {
     html = html
     .replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/'/g, '&#39;')
     return html
 }
 
@@ -48,7 +49,7 @@ const sortRules = function sortRules(rules) {
 
 module.exports = {
     merge,
-    escape,
+    zescape,
     replace,
     noop,
     sortRules

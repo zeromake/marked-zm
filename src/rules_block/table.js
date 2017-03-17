@@ -1,5 +1,5 @@
-module.exports = function table(state) {
-    const cap = state.rules.table.exec(state.src)
+module.exports = function table(state, env) {
+    const cap = env.rules.table.exec(state.src)
     if (state.top && cap) {
         let i
         const offsetLen = cap[0].length
@@ -16,7 +16,7 @@ module.exports = function table(state) {
             end: offsetEnd
         }
 
-        for (i = 0; i < item.align.length; i++) {
+        for (i = 0; i < item.align.length; i += 1) {
             if (/^ *-+: *$/.test(item.align[i])) {
                 item.align[i] = 'right'
             } else if (/^ *:-+: *$/.test(item.align[i])) {
@@ -28,13 +28,13 @@ module.exports = function table(state) {
             }
         }
 
-        for (i = 0; i < item.cells.length; i++) {
+        for (i = 0; i < item.cells.length; i += 1) {
             item.cells[i] = item.cells[i]
                 .replace(/^ *\| *| *\| *$/g, '')
                 .split(/ *\| */)
         }
 
-        state.tokens.push(item)
+        env.tokens.push(item)
         state.offset = offsetEnd
         return true
     }
