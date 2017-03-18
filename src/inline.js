@@ -32,7 +32,7 @@ inline.reflink = replace(inline.reflink)
 const _tag = '(?!(?:'
     + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
     + '|var|samp|sub|sup|b|u|mark|ruby|rt|rp|bdi|bdo'
-    + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b'
+    + '|span|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b'
 
 inline.html = replace(inline.html)
     ('comment', /<!--[\s\S]*?-->/)

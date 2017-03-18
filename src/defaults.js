@@ -1,5 +1,3 @@
-const Renderer = require('./renderer')
-
 const defaults = {
     gfm: true,
     tables: true,
@@ -14,7 +12,7 @@ const defaults = {
     langPrefix: 'lang-',
     smartypants: false,
     headerPrefix: '',
-    renderer: new Renderer(),
+    renderer: null,
     xhtml: false,
 }
 module.exports = defaults

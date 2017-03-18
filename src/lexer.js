@@ -1,11 +1,11 @@
 const defaults = require('./defaults')
 const block = require('./block')
 const blockFun = require('./rules_block')
-const { sortRules } = require('./utils')
+const { sortRules, merge } = require('./utils')
 
 function Lexer(options) {
     this.block = sortRules(blockFun)
-    this.options = options || defaults
+    this.options = options ? merge({}, defaults, options): defaults
     this.rules = block.normal
     this.tokens = []
     this.tocs = []
