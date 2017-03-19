@@ -10,7 +10,7 @@ function Parser(options) {
     this.options.renderer = this.options.renderer || new Renderer()
     this.renderer = this.options.renderer
     this.renderer.options = this.options
-    this.tokenParser = tokenParser
+    this.tokenParser = Parser.tokenParser
 }
 
 /**
