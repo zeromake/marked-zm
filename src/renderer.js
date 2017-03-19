@@ -1,5 +1,5 @@
 
-const { zescape } = require('./utils')
+const zescape = require('./utils/zescape')
 
 function Renderer(options) {
     this.options = options || {};
@@ -31,9 +31,11 @@ Renderer.prototype.blockquote = function blockquote(quote) {
     return '<blockquote>\n' + quote + '</blockquote>\n'
 }
 
-Renderer.prototype.html = function renHtml(html) {
+const renHtml = function renHtml(html) {
     return html
 }
+
+Renderer.prototype.html = renHtml
 
 Renderer.prototype.heading = function heading(text, level) {
     const escapedText = text.toLowerCase()
@@ -164,12 +166,8 @@ Renderer.prototype.image = function image(href, title, text) {
     return out
 }
 
-Renderer.prototype.text = function renText(text) {
-    return text
-}
-Renderer.prototype.blank = function renText(text) {
-    return text
-}
+Renderer.prototype.text = renHtml
+Renderer.prototype.blank = renHtml
 Renderer.prototype.toc = function renToc(items) {
     items[0] = '<ul class="toc-tree">'
     const html = '<div class="toc">'

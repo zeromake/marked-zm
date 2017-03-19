@@ -1,11 +1,12 @@
 const defaults = require('./defaults')
 const block = require('./block')
 const blockFun = require('./rules_block')
-const { sortRules, merge } = require('./utils')
+const sortRules = require('./utils/sort-rules')
+const merge = require('./utils/merge')
 
 function Lexer(options) {
-    this.block = sortRules(blockFun)
-    this.options = options ? merge({}, defaults, options): defaults
+    this.block = sortRules(Lexer.block)
+    this.options = options ? merge({}, defaults, options) : defaults
     this.rules = block.normal
     this.tokens = []
     this.tocs = []
@@ -19,7 +20,7 @@ function Lexer(options) {
     }
 }
 Lexer.rules = block
-Lexer.block = blockFun
+Lexer.block = blockFun.slice(0)
 Lexer.lex = function staticLex(src, options) {
     const lexer = new Lexer(options)
     return lexer.lex(src)
@@ -63,7 +64,7 @@ Lexer.prototype.token = function token(src, top, bq, offsetStart) {
                     break
                 }
             } else {
-                throw new Error('rule is not array or index=1 not is function:', rule)
+                throw new Error('rule is not array or index=1 not is function:' + rule)
             }
         }
         if (!flag && state.src) {

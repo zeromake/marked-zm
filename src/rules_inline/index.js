@@ -1,4 +1,4 @@
-const { zescape } = require('../utils')
+const zescape = require('../utils/zescape')
 
 /* function newline(state) {
     const cap = /^\n+/.exec(state.src)

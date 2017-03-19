@@ -1,6 +1,7 @@
 const Renderer = require('./renderer')
 const defaults = require('./defaults')
-const { zescape, sortRules } = require('./utils')
+const zescape = require('./utils/zescape')
+const sortRules = require('./utils/sort-rules')
 const inline = require('./inline')
 const rulesInline = require('./rules_inline')
 
@@ -8,13 +9,13 @@ const rulesInline = require('./rules_inline')
  * Inline Lexer & Compiler
  */
 
-function InlineLexer(links, options) {
+function InlineLexer(links, options, renderer) {
     this.options = options || defaults
     this.links = links
     this.rules = inline.normal
-    this.renderer = this.options.renderer || new Renderer()
+    this.renderer = renderer || this.options.renderer || new Renderer()
     this.renderer.options = this.options
-    this.rulesInline = sortRules(rulesInline)
+    this.rulesInline = sortRules(InlineLexer.rulesInline)
     if (!this.links) {
         throw new Error('Tokens array requires a `links` property.')
     }
@@ -49,7 +50,7 @@ function InlineLexer(links, options) {
  */
 
 InlineLexer.rules = inline
-InlineLexer.rulesInline = rulesInline
+InlineLexer.rulesInline = rulesInline.slice(0)
 /**
  * Static Lexing/Compiling Method
  */
@@ -64,8 +65,6 @@ InlineLexer.output = function staticOutput(src, links, options) {
  */
 
 InlineLexer.prototype.output = function output(src) {
-    // this.state.src = src
-    // this.state.out = ''
     const state = {
         src,
         out: ''

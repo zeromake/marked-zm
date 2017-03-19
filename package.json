@@ -47,6 +47,8 @@
   },
   "scripts": {
     "lint": "eslint",
+	"test-start": "karma start",
+	"test-run": "karma run",
     "dev": "cross-env NODE_ENV=development webpack --progress --colors --watch --config webpack.config.js",
     "build": "cross-env NODE_ENV=production webpack --progress --colors --config webpack.config.js"
   }

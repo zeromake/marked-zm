@@ -1,5 +1,6 @@
-const { replace, noop, merge } = require('./utils')
-
+const replace = require('./utils/replace')
+const noop = require('./utils/noop')
+const merge = require('./utils/merge')
 
 const block = {
     newline: /^\n+/,

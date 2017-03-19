@@ -1,4 +1,5 @@
-const { merge, zescape } = require('./utils')
+const merge = require('./utils/merge')
+const zescape = require('./utils/zescape')
 const Lexer = require('./lexer')
 const Parser = require('./parser')
 const Renderer = require('./renderer')
