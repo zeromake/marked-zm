@@ -8,7 +8,9 @@
     <script src="https://cdn.staticfile.org/codemirror/5.22.0/mode/markdown/markdown.js"></script>-->
 	<script src="https://cdn.bootcss.com/lodash.js/4.17.4/lodash.js"></script>
     <script src="https://cdn.bootcss.com/highlight.js/9.10.0/highlight.min.js"></script>
-    <link href="https://cdn.bootcss.com/highlight.js/9.10.0/styles/github.min.css" rel="stylesheet">
+    <!--<link href="https://cdn.bootcss.com/highlight.js/9.10.0/styles/tomorrow.min.css" rel="stylesheet">-->
+    <!--<link href="https://cdn.bootcss.com/highlight.js/9.10.0/styles/github.min.css" rel="stylesheet">-->
+    <link rel="stylesheet" href="http://jmblog.github.com/color-themes-for-highlightjs/css/themes/hemisu-light.css">
     <link rel="stylesheet" type="text/css" href="./markdown.css">
 
     <!--<script src="https://cdn.staticfile.org/ace/1.2.6/ace.js"></script>-->
@@ -32,7 +34,7 @@
         }
         .editor-panel{
             border: none;
-            border-right: 1px solid #ddd;
+            border-right: 2px solid #ddd;
         }
         .editor-input, .CodeMirror, .ace_editor{
             width: 100%;
@@ -76,7 +78,7 @@
             left: 0px;
             top:0px;
             height: 100%;
-            width: 15px;
+            width: 8px;
             cursor: col-resize;
         }
     </style>
@@ -93,91 +95,86 @@
 </div>
 <script>
     (function(global) {
+        hljs.configure({
+            classPrefix: ''
+        })
         marked.setOptions({
-            highlight: function (code) {
-                console.log(code)
-                return hljs.highlightAuto(code).value;
+            langPrefix: '',
+            highlight: function (code, lang) {
+                // return hljs.highlightAuto(code).value;
+                var obj = hljs.highlight(lang, code)
+                return obj.value
             }
         })
-        if (document.addEventListener){
-            document.addEventListener("DOMContentLoaded", function Loaded(){
-                // CodeMirror
-                /*var editor = CodeMirror.fromTextArea(document.getElementById('myEditor'), {
-                    mode: 'markdown',
-                    theme: 'mdn-like',
-                    lineNumbers: true,
-                    lineWrapping:true,
-                    indentUnit: 4,
-                    onChange: function(n) {
-                        document.getElementById('myView').innerHTML = marked(editor.getCode(), { sanitize: true })
-                    }
-                })
-                editor.on('change', _.debounce(function(instance, changeObj){
-                    document.getElementById('myView').innerHTML = marked(instance.getValue(), { sanitize: true })
-                }), 400)*/
-                // TextArea
-                document.getElementById('myEditor').addEventListener("input", _.debounce(function(){
-                    document.getElementById('myView').innerHTML = marked(this.value?this.value:"", { sanitize: true })
-                }), 400)
-                // ace editor
-                /*var myEditor = document.querySelector('.editor-panel')
-                var editor = ace.edit("myEditor")
-                // editor.setOption("wrap", "off")
-                editor.setTheme("ace/theme/github")
-                editor.session.setMode("ace/mode/markdown")
-                editor.session.setUseWrapMode(true)
-                var wrapWidth = myEditor.offsetWidth / 10
-                editor.session.setWrapLimitRange(wrapWidth, wrapWidth)
-                editor.getSession().on('change', _.debounce(function(changeObj, instance){
-                    document.getElementById('myView').innerHTML = marked(instance.getValue(), { sanitize: true })
-                }), 400)*/
-				var flag = false
-				document.getElementById('resizer').addEventListener('mousedown', function(e){
-					if (e.button !== 0 || flag) {
-						return false
-					}
-                    flag = true
-					var content = document.getElementById('content')
-					var myEditor = document.querySelector('.editor-panel')
-					var myView = document.querySelector('.preview-panel')
-					var contentWidth = content.offsetWidth
-					var editorWidth = myEditor.offsetWidth
-					var viewWidth = myView.offsetWidth
-					var body = document.querySelector('#content')
-					var cursor = body.style.cursor
-					var oldclientX = e.clientX
-					body.style.cursor = 'col-resize'
-					var pageX = e.pageX
-					var onmousemove = _.throttle(function (e){
-						var offset = pageX - e.pageX
-						var newViewWidth = (viewWidth + offset) / contentWidth * 100
-						var newEditorWidth = 100 - newViewWidth
-                        if (newViewWidth > 20 && newViewWidth < 80){
-                            myEditor.style.width = newEditorWidth + '%'
-                            myView.style.width = newViewWidth + '%'
-                            // ace WrapLimitRange
-                            /*var wrapWidth = myEditor.offsetWidth / 10
-                            editor.session.setWrapLimitRange(wrapWidth, wrapWidth)*/
-                        }
-
-					}, 30)
-					function onmouseup(e) {
-						body.style.cursor = ''
-						flag = false
-						body.removeEventListener('mouseup', onmouseup)
-						body.removeEventListener('mousemove', onmousemove)
-					}
-					body.addEventListener('mouseup', onmouseup)
-                    body.addEventListener('mousemove', onmousemove)
-				})
-                document.removeEventListener("DOMContentLoaded", Loaded)
+        document.addEventListener("DOMContentLoaded", function Loaded(){
+            // CodeMirror
+            /*var editor = CodeMirror.fromTextArea(document.getElementById('myEditor'), {
+                mode: 'markdown',
+                theme: 'mdn-like',
+                lineNumbers: true,
+                lineWrapping:true,
+                indentUnit: 4,
+                onChange: function(n) {
+                    document.getElementById('myView').innerHTML = marked(editor.getCode(), { sanitize: true })
+                }
             })
-        }else{
-            document.getElementById('myEditor').onkeyup = _.debounce(function(){
-                console.log('onchange')
+            editor.on('change', _.debounce(function(instance, changeObj){
+                document.getElementById('myView').innerHTML = marked(instance.getValue(), { sanitize: true })
+            }), 400)*/
+            // TextArea
+            document.getElementById('myEditor').addEventListener("input", _.debounce(function(){
                 document.getElementById('myView').innerHTML = marked(this.value?this.value:"", { sanitize: true })
-            }, 300)
-        }
+            }), 400)
+            // ace editor
+            /*var myEditor = document.querySelector('.editor-panel')
+            var editor = ace.edit("myEditor")
+            // editor.setOption("wrap", "off")
+            editor.setTheme("ace/theme/github")
+            editor.session.setMode("ace/mode/markdown")
+            editor.session.setUseWrapMode(true)
+            var wrapWidth = myEditor.offsetWidth / 10
+            editor.session.setWrapLimitRange(wrapWidth, wrapWidth)
+            editor.getSession().on('change', _.debounce(function(changeObj, instance){
+                document.getElementById('myView').innerHTML = marked(instance.getValue(), { sanitize: true })
+            }), 400)*/
+			var flag = false
+			document.getElementById('resizer').addEventListener('mousedown', function(e){
+				if (e.button !== 0 || flag) {
+					return false
+				}
+                flag = true
+				var content = document.getElementById('content')
+				var myEditor = document.querySelector('.editor-panel')
+				var myView = document.querySelector('.preview-panel')
+                var body = document.querySelector('#content')
+				var contentWidth = content.offsetWidth
+				var editorWidth = myEditor.offsetWidth
+				var viewWidth = myView.offsetWidth
+				var oldclientX = e.clientX
+				var pageX = e.pageX
+				var onmousemove = _.throttle(function (e){
+					var offset = pageX - e.pageX
+					var newViewWidth = (viewWidth + offset) / contentWidth * 100
+					var newEditorWidth = 100 - newViewWidth
+                    if (newViewWidth > 20 && newViewWidth < 80){
+                        myEditor.style.width = newEditorWidth + '%'
+                        myView.style.width = newViewWidth + '%'
+                        // ace WrapLimitRange
+                        /*var wrapWidth = myEditor.offsetWidth / 10
+                        editor.session.setWrapLimitRange(wrapWidth, wrapWidth)*/
+                    }
+
+				}, 30)
+				var onmouseup = function(e) {
+					flag = false
+                    document.removeEventListener("mouseup", onmouseup, true)
+					body.removeEventListener('mousemove', onmousemove)
+				}
+                document.addEventListener("mouseup", onmouseup, true)
+                body.addEventListener('mousemove', onmousemove)
+			})
+            document.removeEventListener("DOMContentLoaded", Loaded)
+        })
     })(this)
 </script>
 </body>
