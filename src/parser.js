@@ -30,15 +30,9 @@ Parser.prototype.parse = function parse(state) {
     const src = state.tokens
     this.tocs = state.tocs
     this.inline = new InlineLexer(state.links, this.options, this.renderer)
-    /* const tocItems = []
-    const tocLen = tocs.length
-    for (let i = 0; i < tocLen; i += 1) {
-        const token = tocs[i]
-        const id = token.text.toLowerCase()
-        tocItems.push(this.renderer.tocItem(id, token.depth, token.text))
-    }
-    this.tocHTML = this.renderer.toc(tocItems.join('\n')) */
-    this.tokens = src.reverse()
+    this.index = 0
+    this.tokenLen = src.length
+    this.tokens = src // .reverse()
     let parseOut = ''
     while (this.next()) {
         parseOut += this.tok()
@@ -51,7 +45,11 @@ Parser.prototype.parse = function parse(state) {
  */
 
 Parser.prototype.next = function parNext() {
-    this.token = this.tokens.pop()
+    if (this.index > this.tokenLen - 1) {
+        return false
+    }
+    this.token = this.tokens[this.index] // .pop()
+    this.index += 1
     return this.token
 };
 
@@ -60,7 +58,9 @@ Parser.prototype.next = function parNext() {
  */
 
 Parser.prototype.peek = function peek() {
-    return this.tokens[this.tokens.length - 1] || 0
+    const nextIndex = this.index + 1
+    return nextIndex < this.tokenLen ? this.tokens[nextIndex] : 0
+    // return this.tokens[this.tokens.length - 1] || 0
 };
 
 /**

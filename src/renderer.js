@@ -7,7 +7,11 @@ function Renderer(options) {
 
 Renderer.prototype.code = function renCode(code, lang, escaped) {
     if (this.options.highlight) {
-        const codeOut = this.options.highlight(code, lang);
+        let codeOut = this.options.highlight(code, lang);
+        if (typeof codeOut === 'object') {
+            lang = codeOut.language
+            codeOut = codeOut.value
+        }
         if (codeOut != null && codeOut !== code) {
             escaped = true;
             code = codeOut;
@@ -19,7 +23,10 @@ Renderer.prototype.code = function renCode(code, lang, escaped) {
         + (escaped ? code : zescape(code, true))
         + '\n</code></pre>'
     }
-    return '<pre><code class="'
+    return '<pre class="code '
+    + this.options.langPrefix
+    + zescape(lang, true)
+    + '"><code class="'
     + this.options.langPrefix
     + zescape(lang, true)
     + '">'

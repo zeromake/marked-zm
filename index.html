@@ -10,13 +10,78 @@
     <script src="https://cdn.bootcss.com/highlight.js/9.10.0/highlight.min.js"></script>
     <!--<link href="https://cdn.bootcss.com/highlight.js/9.10.0/styles/tomorrow.min.css" rel="stylesheet">-->
     <!--<link href="https://cdn.bootcss.com/highlight.js/9.10.0/styles/github.min.css" rel="stylesheet">-->
-    <link rel="stylesheet" href="http://jmblog.github.com/color-themes-for-highlightjs/css/themes/hemisu-light.css">
+    <!-- <link rel="stylesheet" href="http://jmblog.github.com/color-themes-for-highlightjs/css/themes/hemisu-light.css"> -->
     <link rel="stylesheet" type="text/css" href="./markdown.css">
 
     <!--<script src="https://cdn.staticfile.org/ace/1.2.6/ace.js"></script>-->
     <!--<link rel="stylesheet" type="text/css" href="https://cdn.staticfile.org/codemirror/5.22.0/codemirror.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.staticfile.org/codemirror/5.22.0/theme/mdn-like.css">-->
     <style type="text/css">
+        pre .comment, pre .xml .doctype, pre .html .doctype, pre .html .meta, pre .xml .meta {
+          color: #999999;
+        }
+
+        pre .number, pre .ruby .keyword {
+          color: #538192;
+        }
+
+        pre .string, pre .regexp, pre .xml .value, pre .html .value {
+          color: #739200;
+        }
+
+        pre .keyword, pre .title, pre .constant, pre .xml .tag, pre .html .tag, pre .css .attribute {
+          color: #ff0055;
+        }
+
+        pre code {
+          display: block;
+          background: white;
+          color: #111111;
+          font-family: Menlo, Monaco, Consolas, monospace;
+          line-height: 1.5;
+          border: 1px solid #ccc;
+          padding: 10px;
+        }
+        pre .xml .tag .title, pre .html .tag .title, pre .html .tag .name, pre .xml .tag .name {
+          color: #111111;
+        }
+        pre.code.html:after {
+            content: 'HTML';
+        }
+        pre.code.js:after {
+            content: 'JS';
+        }
+        pre.code.javascript:after {
+            content: 'JavaScript';
+        }
+        pre.code.bash:after {
+            content: 'Shell';
+        }
+        pre.code.css:after {
+            content: 'CSS';
+        }
+        pre.code{
+            font-size: 0.8em;
+            position: relative;
+        }
+        body{
+            font-size: 15px;
+        }
+        pre.code:after{
+            position: absolute;
+            top: 0;
+            right: 0;
+            color: #ccc;
+            text-align: right;
+            font-size: 0.75em;
+            padding: 5px 10px 0;
+            line-height: 15px;
+            height: 15px;
+            font-weight: 600;
+        }
+        /*pre .html .tag .title {
+          color: #111111;
+        }*/
         textarea{margin:0;padding:0;}
         .content{
             font-size: 0;
@@ -70,7 +135,7 @@
             font-size: 14px;
             width: 100%;
             height: 100%;
-            padding: 10px 10px 10px 35px;
+            padding: 10px 10px 10px 25px;
             overflow: auto;
         }
         .layout-resizer{
@@ -101,9 +166,16 @@
         marked.setOptions({
             langPrefix: '',
             highlight: function (code, lang) {
-                // return hljs.highlightAuto(code).value;
-                var obj = hljs.highlight(lang, code)
-                return obj.value
+                if (lang){
+                    try {
+                        return hljs.highlight(lang, code).value
+                    } catch(e) {
+                        return hljs.highlightAuto(code)
+                    }
+                }
+                return hljs.highlightAuto(code)
+                /*var obj = hljs.highlight(lang, code)
+                return obj.value*/
             }
         })
         document.addEventListener("DOMContentLoaded", function Loaded(){
