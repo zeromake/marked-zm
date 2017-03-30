@@ -194,7 +194,7 @@ Renderer.prototype.tocItem = function tocItem(id, level, text) {
         + text
         + '</span></a>'
 }
-Renderer.prototype.emoji = function emoji(emojiName) {
+/* Renderer.prototype.emoji = function emoji(emojiName) {
     const title = ':' + zescape(emojiName) + ':'
     return '<img src="https://cdn.bootcss.com/emojify.js/1.0/images/basic/'
         + encodeURIComponent(emojiName)
@@ -202,6 +202,6 @@ Renderer.prototype.emoji = function emoji(emojiName) {
         + title
         + '" title="'
         + title
-        + '" class="emoji" align="absmiddle"/>'
-}
+        + '" class="emoji" align="absmiddle"' + this.options.xhtml ? "/>" : ">"
+} */
 module.exports = Renderer

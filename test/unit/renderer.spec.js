@@ -8,7 +8,7 @@ describe('Test Renderer', () => {
         expect(renderer.code(testCode))
             .toEqual('<pre><code>'+testCode+'\n</code></pre>')
         expect(renderer.code(testCode, 'js'))
-            .toEqual('<pre><code class="lang-js">'+testCode+'\n</code></pre>\n')
+            .toEqual('<pre class="code lang-js"><code class="lang-js">'+testCode+'\n</code></pre>\n')
 
     })
     it('highlight code', () => {
@@ -20,7 +20,7 @@ describe('Test Renderer', () => {
             }
         })
         expect(renderer1.code(testCode, 'js'))
-        .toEqual('<pre><code class="lang-js">test\n</code></pre>\n')
+        .toEqual('<pre class="code lang-js"><code class="lang-js">test\n</code></pre>\n')
     })
     it('blockquote', () => {
         expect(renderer.blockquote('test'))
@@ -132,8 +132,8 @@ describe('Test Renderer', () => {
         expect(renderer.tocItem('test', 1, 'test'))
             .toEqual('<li class="toc-item toc-level-1"><a class="toc-link" href="#test"><span class="toc-number"></span><span class="toc-text">test</span></a>')
     })
-    it('emoji', () => {
+    /*it('emoji', () => {
         expect(renderer.emoji('up'))
             .toEqual('<img src="https://cdn.bootcss.com/emojify.js/1.0/images/basic/up.png" alt=":up:" title=":up:" class="emoji" align="absmiddle"/>')
-    })
+    })*/
 })

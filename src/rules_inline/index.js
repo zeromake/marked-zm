@@ -4,13 +4,13 @@ const zescape = require('../utils/zescape')
     const cap = /^\n+/.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
-        state.out += '<br/>'
+        state.out += env.renderer.br()
         return 1
     }
     return false
 } */
 
-function emoji(state, env) {
+/* function emoji(state, env) {
     const cap = env.rules.emoji.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
@@ -18,7 +18,7 @@ function emoji(state, env) {
         return 1
     }
     return false
-}
+} */
 
 function html(state, env) {
     const cap = env.rules.html.exec(state.src)
@@ -96,7 +96,7 @@ function link(state, env) {
         env.inLink = true
         state.out += env.outputLink(cap, {
             href: cap[2],
-            title: cap[3],
+            title: cap[3]
         })
         env.inLink = false
         return 1
@@ -186,7 +186,7 @@ function text(state, env) {
 
 const _rules = [
     // ['newline', newline, 10],
-    ['emoji', emoji, 20],
+    // ['emoji', emoji, 20],
     ['html', html, 30],
     ['escape', ruleEscape, 40],
     ['autolink', autolink, 50],

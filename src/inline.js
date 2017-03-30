@@ -67,7 +67,7 @@ inline.gfm = merge({}, inline.normal, {
     url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
     del: /^~~(?=\S)([\s\S]*?\S)~~/,
     text: replace(inline.text)(']|', '~]|:[a-zA-Z0-9_\\-+]+:|https?://|')(),
-    emoji: /^:([a-zA-Z0-9_\-+]+):/
+    // emoji: /^:([a-zA-Z0-9_\-+]+):/
 })
 
 /**
