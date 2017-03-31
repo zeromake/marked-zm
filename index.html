@@ -17,19 +17,19 @@
     <!--<link rel="stylesheet" type="text/css" href="https://cdn.staticfile.org/codemirror/5.22.0/codemirror.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.staticfile.org/codemirror/5.22.0/theme/mdn-like.css">-->
     <style type="text/css">
-        pre .comment, pre .xml .doctype, pre .html .doctype, pre .html .meta, pre .xml .meta {
+        pre .hljs-comment, pre .xml .hljs-doctype, pre .html .hljs-doctype, pre .html .hljs-meta, pre .xml .hljs-meta {
           color: #999999;
         }
 
-        pre .number, pre .ruby .keyword {
+        pre .hljs-number, pre .ruby .hljs-keyword {
           color: #538192;
         }
 
-        pre .string, pre .regexp, pre .xml .value, pre .html .value {
+        pre .hljs-string, pre .hljs-regexp, pre .xml .hljs-value, pre .html .hljs-value {
           color: #739200;
         }
 
-        pre .keyword, pre .title, pre .constant, pre .xml .tag, pre .html .tag, pre .css .attribute {
+        pre .hljs-keyword, pre .hljs-title, pre .hljs-constant, pre .xml .hljs-tag, pre .html .hljs-tag, pre .css .hljs-attribute {
           color: #ff0055;
         }
 
@@ -42,7 +42,7 @@
           border: 1px solid #ccc;
           padding: 10px;
         }
-        pre .xml .tag .title, pre .html .tag .title, pre .html .tag .name, pre .xml .tag .name {
+        pre .xml .hljs-tag .hljs-title, pre .html .hljs-tag .hljs-title, pre .html .hljs-tag .hljs-name, pre .xml .hljs-tag .hljs-name {
           color: #111111;
         }
         pre.code.html:after {
@@ -78,6 +78,12 @@
             line-height: 15px;
             height: 15px;
             font-weight: 600;
+        }
+        .markdown-body p code {
+            padding: 2px 4px;
+            color: #c7254e;
+            background-color: #f9f2f4;
+            border-radius: 4px;
         }
         /*pre .html .tag .title {
           color: #111111;
@@ -132,7 +138,7 @@
             display: inline-block;
         }
         .markdown-body{
-            font-size: 14px;
+            font-size: 18px;
             width: 100%;
             height: 100%;
             padding: 10px 10px 10px 25px;
@@ -160,9 +166,9 @@
 </div>
 <script>
     (function(global) {
-        hljs.configure({
+        /*hljs.configure({
             classPrefix: ''
-        })
+        })*/
         marked.setOptions({
             langPrefix: '',
             highlight: function (code, lang) {
