@@ -100,6 +100,9 @@ const tokenParser = {
         return env.renderer.paragraph(env.parseText())
     },
     toc(env) {
+        if (env.tocRender) {
+            return env.tocRender
+        }
         let i
         const len = env.tocs.length
         if (len === 0) {
@@ -138,8 +141,8 @@ const tokenParser = {
             last -= 1
             body.push('</li></ul>')
         }
-
-        return env.renderer.toc(body)
+        env.tocRender = env.renderer.toc(body)
+        return env.tocRender
     }
 }
 module.exports = tokenParser

@@ -29,20 +29,6 @@ function InlineLexer(links, options, renderer) {
     } else if (this.options.pedantic) {
         this.rules = inline.pedantic
     }
-    /* this.state = {
-        links,
-        rules: this.rules,
-        output: (src) => {
-            const oldState = {
-                src: this.state.src,
-                out: this.state.out
-            }
-            const out = this.output(src)
-            this.state.src = oldState.src
-            this.state.out = oldState.out
-            return out
-        }
-    } */
 }
 
 /**

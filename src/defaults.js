@@ -14,5 +14,6 @@ const defaults = {
     headerPrefix: '',
     renderer: null,
     xhtml: false,
+    inlineHtml: false
 }
 module.exports = defaults

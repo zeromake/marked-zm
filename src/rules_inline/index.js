@@ -20,16 +20,6 @@ const zescape = require('../utils/zescape')
     return false
 } */
 
-function html(state, env) {
-    const cap = env.rules.html.exec(state.src)
-    if (cap) {
-        state.src = state.src.substring(cap[0].length)
-        state.out += env.renderer.html(cap[0])
-        return 1
-    }
-    return false
-}
-
 function ruleEscape(state, env) {
     const cap = env.rules.escape.exec(state.src)
     if (cap) {
@@ -187,10 +177,9 @@ function text(state, env) {
 const _rules = [
     // ['newline', newline, 10],
     // ['emoji', emoji, 20],
-    ['html', html, 30],
-    ['escape', ruleEscape, 40],
-    ['autolink', autolink, 50],
-    ['url', url, 60],
+    ['escape', ruleEscape, 30],
+    ['autolink', autolink, 40],
+    ['url', url, 50],
     ['tag', tag, 70],
     ['link', link, 80],
     ['refnolink', refnolink, 90],

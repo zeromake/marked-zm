@@ -15,8 +15,7 @@ const inline = {
     code: /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,
     br: /^ {2,}\n(?!\s*$)/,
     del: noop,
-    text: /^[\s\S]+?(?=[\\<![_*`$:]|\n|$)/, // $ katex : emoji
-    html: /^ *(?:comment|closed|closing)/
+    text: /^[\s\S]+?(?=[\\<![_*`$:]|\n|$)/ // $ katex : emoji
 }
 
 inline._inside = /(?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*/
@@ -29,18 +28,6 @@ inline.link = replace(inline.link)
 
 inline.reflink = replace(inline.reflink)
     ('inside', inline._inside)
-    ()
-
-const _tag = '(?!(?:'
-    + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
-    + '|var|samp|sub|sup|b|u|mark|ruby|rt|rp|bdi|bdo'
-    + '|span|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b'
-
-inline.html = replace(inline.html)
-    ('comment', /<!--[\s\S]*?-->/)
-    ('closed', /<(tag)[\s\S]+?<\/\1>/)
-    ('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
-    (/tag/g, _tag)
     ()
 
 /**

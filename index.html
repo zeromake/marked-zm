@@ -195,7 +195,7 @@
             }), 400)*/
             // TextArea
             document.getElementById('myEditor').addEventListener("input", _.debounce(function(){
-                document.getElementById('myView').innerHTML = marked(this.value?this.value:"", { sanitize: true })
+                document.getElementById('myView').innerHTML = marked(this.value?this.value:"")
             }), 400)
             // ace editor
             /*var myEditor = document.querySelector('.editor-panel')

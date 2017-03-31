@@ -186,12 +186,13 @@ Renderer.prototype.tocItem = function tocItem(id, level, text) {
     if (!id && !text && level) {
         return '<li class="toc-item toc-level-' + level + '">'
     }
+    const tocText = this.options.sanitize ? zescape(text) : text
     return '<li class="toc-item toc-level-'
         + level
         + '"><a class="toc-link" href="#'
         + zescape(id)
         + '"><span class="toc-number"></span><span class="toc-text">'
-        + text
+        + tocText
         + '</span></a>'
 }
 /* Renderer.prototype.emoji = function emoji(emojiName) {
