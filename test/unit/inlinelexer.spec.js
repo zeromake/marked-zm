@@ -7,7 +7,6 @@ describe('Test InlineLexer', () => {
             .toEqual('test<img src="https://cdn.bootcss.com/emojify.js/1.0/images/basic/up.png" alt=":up:" title=":up:" class="emoji" align="absmiddle"/>fsdf')
     }) */
     it('html', () => {
-        const newinlinelexer = new InlineLexer({}, {inlineHtml: true})
         expect(inlinelexer.output('test<i class="sfdsf">test'))
             .toEqual('test<i class="sfdsf">test')
     })
