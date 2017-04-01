@@ -38,7 +38,7 @@ Renderer.prototype.blockquote = function blockquote(quote) {
     return '<blockquote>\n' + quote + '</blockquote>\n'
 }
 
-const renHtml = function renHtml(html) {
+const renHtml = function renHtmlFun(html) {
     return html
 }
 

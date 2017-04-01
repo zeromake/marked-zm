@@ -1,4 +1,4 @@
-const zescape = function zescape(html, encode) {
+const zescape = function zescapeFun(html, encode) {
     html = html.replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')

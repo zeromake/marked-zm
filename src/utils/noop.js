@@ -1,4 +1,4 @@
-const noop = function noop() {}
+const noop = function noopFun() {}
 noop.exec = noop
 
 module.exports = noop

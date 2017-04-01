@@ -23,7 +23,7 @@ function marked(src, opt, callback) {
             return callback(e)
         }
         pending = tokens.length
-        const done = function done(err) {
+        const done = (err) => {
             if (err) {
                 opt.highlight = highlight
                 return callback(err)
@@ -43,7 +43,7 @@ function marked(src, opt, callback) {
         delete opt.highlight
         if (!pending) return done()
 
-        const highlightHandle = function highlightHandle(token) {
+        const highlightHandle = function highlightHandleFun(token) {
             return (err, code) => {
                 if (err) return done(err)
                 if (code == null || token.text === code) {

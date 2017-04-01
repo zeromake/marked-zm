@@ -1,4 +1,4 @@
-const replace = function replace(regex, opt) {
+const replace = function replaceFun(regex, opt) {
     regex = regex.source
     opt = opt || ''
     return function self(name, val) {

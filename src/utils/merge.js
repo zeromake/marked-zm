@@ -1,4 +1,4 @@
-const merge = function merge(...args) {
+const merge = function mergeFun(...args) {
     const obj = args[0]
     let target
     let key
