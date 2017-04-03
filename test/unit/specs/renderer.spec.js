@@ -1,5 +1,5 @@
-
-const Renderer = require('@/renderer')
+const Renderer = require('../../../src/renderer')
+const zescape = require('../../../src/utils/zescape')
 
 describe('Test Renderer', () => {
     const renderer = new Renderer({langPrefix: 'lang-'})
@@ -21,6 +21,30 @@ describe('Test Renderer', () => {
         })
         expect(renderer1.code(testCode, 'js'))
         .to.equal('<pre class="code lang-js"><code class="lang-js">test\n</code></pre>\n')
+    })
+    it('highlight code return object', () => {
+        const testCode = 'function test(){\n    return true\n}'
+        const renderer1 = new Renderer({langPrefix: 'lang-', highlight: function(code, lang) {
+                expect(code).to.equal(testCode)
+                expect(lang).to.equal('js')
+                return {
+                    language: 'test',
+                    value: 'test'
+                }
+            }
+        })
+        expect(renderer1.code(testCode, 'js'))
+        .to.equal('<pre class="code lang-test"><code class="lang-test">test\n</code></pre>\n')
+    })
+    it('highlight code not lang', () => {
+        const testCode = 'function test(){\n    return true\n}'
+        const renderer1 = new Renderer({langPrefix: 'lang-', highlight: function(code) {
+                expect(code).to.equal(testCode)
+                return 'test'
+            }
+        })
+        expect(renderer1.code(testCode))
+            .to.equal('<pre><code>test\n</code></pre>')
     })
     it('blockquote', () => {
         expect(renderer.blockquote('test'))
@@ -112,6 +136,8 @@ describe('Test Renderer', () => {
             .to.equal('<a href="/" title="title">test</a>')
         expect(renderer1.link('data:', null, 'test'))
             .to.equal('')
+        expect(renderer1.link('http://www.test.com?test=%dsf%', null, 'test'))
+            .to.equal('')
     })
     it('image', () => {
         const renderer1 = new Renderer({xhtml: 1})
@@ -130,6 +156,11 @@ describe('Test Renderer', () => {
         expect(renderer.tocItem(null, 1))
             .to.equal('<li class="toc-item toc-level-1">')
         expect(renderer.tocItem('test', 1, 'test'))
+            .to.equal('<li class="toc-item toc-level-1"><a class="toc-link" href="#test"><span class="toc-number"></span><span class="toc-text">test</span></a>')
+        const renderer1 = new Renderer({
+            sanitize: true
+        })
+        expect(renderer1.tocItem('test', 1, 'test'))
             .to.equal('<li class="toc-item toc-level-1"><a class="toc-link" href="#test"><span class="toc-number"></span><span class="toc-text">test</span></a>')
     })
     /*it('emoji', () => {

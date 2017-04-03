@@ -1,4 +1,4 @@
-const InlineLexer = require('@/inlinelexer')
+const InlineLexer = require('../../../src/inlinelexer')
 
 describe('Test InlineLexer', () => {
     const inlinelexer = new InlineLexer({})
@@ -21,6 +21,11 @@ describe('Test InlineLexer', () => {
             .to.true
         expect(inlinelexer.output('<https://blog.zeromake.com>'))
             .to.equal('<a href="https://blog.zeromake.com">https://blog.zeromake.com</a>')
+        const inlinelexer1 = new InlineLexer({}, {
+            mangle: false
+        })
+        expect(inlinelexer1.output('<mailto:fly-zero@hotmail.com>'))
+            .to.equal('<a href="mailto:fly-zero@hotmail.com">fly-zero@hotmail.com</a>')
     })
     it('url', () => {
         expect(inlinelexer.output('https://blog.zeromake.com'))
@@ -43,6 +48,10 @@ describe('Test InlineLexer', () => {
     it('link', () => {
         expect(inlinelexer.output('[test](https://blog.zeromake.com)'))
             .to.equal('<a href="https://blog.zeromake.com">test</a>')
+        expect(inlinelexer.output('[test](https://blog.zeromake.com "title test")'))
+            .to.equal('<a href="https://blog.zeromake.com" title="title test">test</a>')
+        expect(inlinelexer.output('![alt text](https://github.com/icon48.png "title text")'))
+            .to.equal('<img src="https://github.com/icon48.png" alt="alt text" title="title text">')
     })
     it('refnolink', () => {
         const newinlinelexer = new InlineLexer({
@@ -70,5 +79,63 @@ describe('Test InlineLexer', () => {
     it('del', () => {
         expect(inlinelexer.output('~~test~~'))
             .to.equal('<del>test</del>')
+    })
+    it('not links', () => {
+        try {
+            const inlinelexer1 = new InlineLexer()
+        } catch(e) {
+            expect(e.message).to.equal('Tokens array requires a `links` property.')
+            expect(e.name).to.equal('Error')
+        }
+    })
+    it('option breaks', () => {
+        const inlinelexer1 = new InlineLexer({}, {
+            gfm: true,
+            breaks: true
+        })
+    })
+    it('option pedantic', () => {
+        const inlinelexer1 = new InlineLexer({}, {
+            gfm: false,
+            pedantic: true
+        })
+    })
+    it('static output', () => {
+        expect(InlineLexer.output('~~test~~', {}))
+            .to.equal('<del>test</del>')
+    })
+    it('error rule', () => {
+        InlineLexer.rulesInline.push(['test', null, 1])
+        const inlinelexer1 = new InlineLexer({})
+        InlineLexer.rulesInline.pop()
+        try {
+            inlinelexer1.output('~~test~~', {})
+        } catch (e) {
+            expect(e.message).to.equal('rule is not array or index=1 not is function:test,,1')
+            expect(e.name).to.equal('Error')
+        }
+
+    })
+    it('error rule not sub src', () => {
+        const old = InlineLexer.rulesInline
+        InlineLexer.rulesInline = [['test', function() {
+            return false
+        }, 1]]
+        const inlinelexer1 = new InlineLexer({})
+        InlineLexer.rulesInline = old
+        try {
+            inlinelexer1.output('~~test~~', {})
+        } catch (e) {
+            expect(e.message).to.equal('Infinite loop on byte: 126')
+            expect(e.name).to.equal('Error')
+        }
+
+    })
+    it('text', () => {
+        const inlinelexer1 = new InlineLexer({}, {
+            smartypants: true
+        })
+        expect(inlinelexer1.output('test'))
+            .to.equal('test')
     })
 })

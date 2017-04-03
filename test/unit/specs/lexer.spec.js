@@ -1,5 +1,5 @@
 
-const Lexer = require('@/lexer')
+const Lexer = require('../../../src/lexer')
 
 describe('Test Lexer', () => {
     it('newline', () => {
@@ -195,5 +195,10 @@ describe('Test Lexer', () => {
     })
     it('smartLists', () => {
         const state = Lexer.lex('- test\n\n- test2', {smartLists: true})
+    })
+    it('lexer not tables', () => {
+        const state = Lexer.lex('test', {tables: false})
+        expect(state.tokens).to.have.lengthOf(1)
+        expect(state.tokens[0].type).to.equal('paragraph')
     })
 })

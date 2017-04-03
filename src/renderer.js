@@ -144,7 +144,8 @@ Renderer.prototype.link = function link(href, title, text) {
     if (this.options.sanitize) {
         let prot
         try {
-            prot = decodeURIComponent(unescape(href))
+            // prot = decodeURIComponent(unescape(href))
+            prot = decodeURIComponent(href)
                 .replace(/[^\w:]/g, '')
                 .toLowerCase()
         } catch (e) {

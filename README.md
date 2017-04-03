@@ -39,7 +39,7 @@ marked.use(function(marked) {
         parser(env) {
             return env.renderer.paragraph(env.renderer[type](env.token.text))
         },
-        inline(state) {
+        inline(state, env) {
             const cap = inlineReg.exec(state.src)
             if (cap) {
                 var offsetLen = cap[0].length
@@ -47,7 +47,7 @@ marked.use(function(marked) {
                 state.out += env.renderer[type](cap[1])
                 return true
             }
-        }
+        },
         renderer(text, renderer) {
             return 'katex: ' + text
         }

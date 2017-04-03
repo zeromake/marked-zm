@@ -16,9 +16,11 @@ function marked(src, opt, callback) {
         const highlight = opt.highlight
         let tokens
         let pending
+        let state
         let i = 0
         try {
-            tokens = Lexer.lex(src, opt)
+            state = Lexer.lex(src, opt)
+            tokens = state.tokens
         } catch (e) {
             return callback(e)
         }
@@ -30,7 +32,7 @@ function marked(src, opt, callback) {
             }
             let out
             try {
-                out = Parser.parse(tokens, opt)
+                out = Parser.parse(state, opt)
             } catch (e) {
                 err = e
             }

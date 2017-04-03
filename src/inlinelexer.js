@@ -68,7 +68,7 @@ InlineLexer.prototype.output = function output(src) {
                     break
                 }
             } else {
-                throw new Error('rule is not array or index=1 not is function:', rule)
+                throw new Error('rule is not array or index=1 not is function:' + rule)
             }
         }
         if (!flag && state.src) {

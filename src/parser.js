@@ -34,6 +34,7 @@ Parser.prototype.parse = function parse(state) {
     this.tokenLen = src.length
     this.tokens = src // .reverse()
     let parseOut = ''
+    this.tocRender = null
     while (this.next()) {
         parseOut += this.tok()
     }
@@ -69,7 +70,6 @@ Parser.prototype.peek = function peek() {
 
 Parser.prototype.parseText = function parseText() {
     let textBody = this.token.text
-
     while (this.peek().type === 'text') {
         textBody += '\n' + this.next().text
     }

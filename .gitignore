@@ -1,3 +1,4 @@
 node_modules/
 /coverage/
 /test/unit/coverage/
+/test/unit/coverage-node/
