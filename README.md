@@ -1,3 +1,6 @@
+[![Travis Build Status](https://travis-ci.org/zeromake/marked-zm.svg?branch=master)](https://travis-ci.org/zeromake/marked-zm)
+[![Coverage Status](https://coveralls.io/repos/github/zeromake/marked-zm/badge.svg?branch=master)](https://coveralls.io/github/zeromake/marked-zm?branch=master)
+
 # marked-zm
 
 ## Install
