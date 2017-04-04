@@ -1,0 +1,42 @@
+{
+    "tags": {
+        "allowUnknownTags": true
+    },
+    "source": {
+        "include": ["src"],
+        "exclude": ["src/utils"],
+        "includePattern": ".+\\.js$"
+    },
+    "plugins": ["plugins/markdown"],
+    "mardown": {
+        "tags": ["file"],
+        "excludeTags": ["author"],
+        "parser": "gfm",
+        "hardwrap": true
+    },
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false,
+        "dateFormat": "ddd MMM Do YYYY",
+        "outputSourceFiles": true,
+        "outputSourcePath": true,
+        "systemName": "marked-zm",
+        "footer": "",
+        "copyright": "https://blog.zeromake.com",
+        "navType": "vertical",
+        "theme": "flatly",
+        "inenums": true,
+        "collapseSymbols": false,
+        "inverseNav": true,
+        "protocol": "html://",
+        "methodHeadingReturns": true
+
+    },
+    "opts": {
+        "template": "./node_modules/ink-docstrap/template",
+        "destination": "./docs/",
+        "recurse": true,
+        "debug": true,
+        "readme": "README.md"
+    }
+}

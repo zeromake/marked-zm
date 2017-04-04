@@ -5,7 +5,13 @@ const Parser = require('./parser')
 const Renderer = require('./renderer')
 const InlineLexer = require('./inlinelexer')
 const defaults = require('./defaults')
-
+/**
+ * marked 的入口
+ * @param  {string} src 要被解析的原字符串: 必须
+ * @param  {object|markedCallback} opt 配置对象或回调函数: 可选
+ * @param  {markedCallback} callback 回调函数: 可选
+ * @return {string} 返回字符串，但是如果设置来回调则会通过回调输出
+ */
 function marked(src, opt, callback) {
     if (callback || typeof opt === 'function') {
         if (!callback) {
@@ -83,6 +89,14 @@ function marked(src, opt, callback) {
         throw e;
     }
 }
+
+/**
+ * marked回调
+ * @callback markedCallback
+ * @param {Error} e 错误对象为null则没有错误
+ * @param {string} out 解析后的html字符串，发生错误为undefined
+ */
+
 marked.setOptions = (opt) => {
     merge(marked.defaults, opt)
     return marked

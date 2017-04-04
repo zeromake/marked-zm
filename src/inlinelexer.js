@@ -6,9 +6,13 @@ const inline = require('./inline')
 const rulesInline = require('./rules_inline')
 
 /**
+ *
  * Inline Lexer & Compiler
+ * @constructs InlineLexer
+ * @param {object} links    name: link的链接对象:必须
+ * @param {object} options  配置对象: 可选
+ * @param {object} renderer renderer对象实例: 可选
  */
-
 function InlineLexer(links, options, renderer) {
     this.options = options || defaults
     this.links = links
@@ -34,8 +38,11 @@ function InlineLexer(links, options, renderer) {
 /**
  * Expose Inline Rules
  */
-
 InlineLexer.rules = inline
+/**
+ * rulesInline
+ * @type {Array}
+ */
 InlineLexer.rulesInline = rulesInline.slice(0)
 /**
  * Static Lexing/Compiling Method
