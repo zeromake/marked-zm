@@ -59,8 +59,7 @@ Parser.prototype.next = function parNext() {
  */
 
 Parser.prototype.peek = function peek() {
-    const nextIndex = this.index + 1
-    return nextIndex < this.tokenLen ? this.tokens[nextIndex] : 0
+    return this.index < this.tokenLen ? this.tokens[this.index] : 0
     // return this.tokens[this.tokens.length - 1] || 0
 };
 

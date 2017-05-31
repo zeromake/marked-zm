@@ -11,14 +11,14 @@ const block = {
     nptable: noop,
     lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
     blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
-    list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n+|\s*$)/,
+    list: /^( *)(bull) [\s\S]+?(?:hr|def|heading|blockquote|fences|\n{2,}(?! )(?!\1bull )\n+|\s*$)/,
     html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
     def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
     table: noop,
     paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
     text: /^[^\n]+/,
     toc: /^ *\[(TOC|toc)\](\n|$)/,
-    checkedlist: /^( *)(bull) +\[( *|x)\] [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n|\s*$)/
+    checkedlist: /^( *)(bull) +\[x| \] +[\s\S]+?(?:\n{2,}(?! )(?!\1bull )\n|\s*$)/
 }
 block.bullet = /(?:[*+-]|\d+\.)/
 block.item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/
@@ -27,6 +27,9 @@ block.list = replace(block.list)
     (/bull/g, block.bullet)
     ('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
     ('def', '\\n+(?=' + block.def.source + ')')
+    ('heading', '\\n+(?=\\1#{1,6} )')
+    ('fences', '\\n+(?=\\1(`{3,}|~{3,})\\n)')
+    ('blockquote', '\\n+(?=\\1> )')
     ()
 
 block.checkeditem = /^( *)(bull) +\[( *|x)\] [^\n]*(?:\n(?!\1bull )[^\n]*)*/
