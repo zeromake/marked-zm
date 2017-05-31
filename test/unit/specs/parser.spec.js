@@ -79,14 +79,6 @@ describe('Test Parser', () => {
                 text: 'test'
             },
             {
-                type: 'text',
-                text: 'test1'
-            },
-            {
-                type: 'text',
-                text: 'test2'
-            },
-            {
                 type: 'hr'
             },
             {
@@ -96,7 +88,7 @@ describe('Test Parser', () => {
                 type: 'list_end'
             }
         ]
-        const body = renderer.listitem(inlinelexer.output('test\ntest1test2') + renderer.hr())
+        const body = renderer.listitem(inlinelexer.output('test') + renderer.hr())
         expect(parserTokens(olListTokens)).to.equal(renderer.list(body))
     })
     it('ul list', () => {
@@ -113,10 +105,6 @@ describe('Test Parser', () => {
                 text: 'test'
             },
             {
-                type: 'text',
-                text: 'test1'
-            },
-            {
                 type: 'list_item_end'
             },
             {
@@ -124,7 +112,7 @@ describe('Test Parser', () => {
             }
         ]
 
-        const body = renderer.listitem('<p>test</p>\n<p>test1</p>\n')
+        const body = renderer.listitem('<p>test</p>\n')
         expect(parserTokens(ulListTokens)).to.equal(renderer.list(body, true))
     })
     it('html', () => {

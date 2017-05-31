@@ -114,7 +114,7 @@ describe('Test Lexer', () => {
         expect(state.tokens[17].type).to.equal('list_end')
         expect(state.tokens[18].type).to.equal('list_start')
         expect(state.tokens[19].type).to.equal('list_item_start')
-        expect(state.tokens[19].checked).to.false
+        expect(state.tokens[19].checked).to.null
         expect(state.tokens[20].type).to.equal('text')
         expect(state.tokens[21].type).to.equal('text')
         expect(state.tokens[22].type).to.equal('list_item_end')
