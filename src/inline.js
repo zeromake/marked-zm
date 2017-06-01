@@ -3,6 +3,7 @@ const noop = require('./utils/noop')
 const merge = require('./utils/merge')
 
 const inline = {
+    newline: /^ {2,}\n+/,
     escape: /^\\([\\`*{}[\]()#+\-.!_>])/,
     autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
     url: noop,
@@ -15,7 +16,7 @@ const inline = {
     code: /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,
     br: /^ {2,}\n(?!\s*$)/,
     del: noop,
-    text: /^[\s\S]+?(?=[\\<![_*`$:]|\n|$)/ // $ katex : emoji
+    text: /^[\s\S]+?(?=[\\<![_*`$:]| *\n|$)/ // `$`->katex `:`->emoji
 }
 
 inline._inside = /(?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*/
@@ -54,6 +55,7 @@ inline.gfm = merge({}, inline.normal, {
     url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
     del: /^~~(?=\S)([\s\S]*?\S)~~/,
     text: replace(inline.text)(']|', '~]|:[a-zA-Z0-9_\\-+]+:|https?://|')(),
+    newline: /^ *\n+/
     // emoji: /^:([a-zA-Z0-9_\-+]+):/
 })
 

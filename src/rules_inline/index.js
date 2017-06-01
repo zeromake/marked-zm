@@ -1,14 +1,14 @@
 const zescape = require('../utils/zescape')
 
-/* function newline(state) {
-    const cap = /^\n+/.exec(state.src)
+function newline(state, env) {
+    const cap = env.rules.newline.exec(state.src)
     if (cap) {
         state.src = state.src.substring(cap[0].length)
         state.out += env.renderer.br()
         return 1
     }
     return false
-} */
+}
 
 /* function emoji(state, env) {
     const cap = env.rules.emoji.exec(state.src)
@@ -175,7 +175,7 @@ function text(state, env) {
 }
 
 const _rules = [
-    // ['newline', newline, 10],
+    ['newline', newline, 10],
     // ['emoji', emoji, 20],
     ['escape', ruleEscape, 30],
     ['autolink', autolink, 40],
