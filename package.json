@@ -2,7 +2,7 @@
   "name": "marked-zm",
   "description": "marked fork by zeromake",
   "author": "zeromake <fly-zero@hotmail.com>",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "./lib/marked.js",
   "repository": {
     "type": "git",
