@@ -11,7 +11,7 @@ const block = {
     nptable: noop,
     lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
     blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
-    list: /^( *)(bull) [\s\S]+?(?:hr|def|heading|blockquote|fences|\n{2,}(?! )(?!\1bull )\n+|\s*$)/,
+    list: /^( *)(bull) [\s\S]+?(?:hr|heading|blockquote|fences|def|\n{2,}(?! )(?!\1bull )\n+|\s*$)/,
     html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
     def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
     table: noop,
@@ -28,7 +28,7 @@ block.list = replace(block.list)
     ('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
     ('def', '\\n+(?=' + block.def.source + ')')
     ('heading', '\\n+(?=\\1#{1,6} )')
-    ('fences', '\\n+(?=\\1(`{3,}|~{3,})\\n)')
+    ('fences', '\\n+(?=\\1[`~]{3,})')
     ('blockquote', '\\n+(?=\\1> )')
     ()
 
